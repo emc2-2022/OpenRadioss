@@ -189,13 +189,18 @@ C-------------------------------------------------------------------------------
 
 C--------------------------------------------------------------------------------
 C     Filling buffer tables
+    !     NUVAR fields
+    !          NUVAR( 1) : cumulated instability damage
+    !          NUVAR( 2) : cumulated necking critical damage
+    !          NUVAR( 3) : saved initial element size
 C--------------------------------------------------------------------------------
       FAIL%KEYWORD = 'TAB2' 
       FAIL%IRUPT   = IRUPT 
       FAIL%FAIL_ID = FAIL_ID 
       FAIL%NUPARAM = 25
       FAIL%NIPARAM = 1
-      FAIL%NUVAR   = 3
+      FAIL%NUVAR   = 3     !< state variables
+      FAIL%NVARTMP = 11    !< tmp variables to store last position used in function interpolation
       FAIL%NFUNC   = 4
       FAIL%NTABLE  = 3
       FAIL%NMOD    = 0

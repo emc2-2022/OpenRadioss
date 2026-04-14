@@ -35,7 +35,7 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
      .            NUMELC,IPM,NUMMAT,NUMGEO,POIN_PART_SHELL,
      .            MID_PID_SHELL,IPARTC,OFF,BUFMAT,
      .            MID_OLD,PID_OLD,MLN_OLD,RECHERCHE,TELT_PRO,
-     .            TABMP_L,MAT_PARAM)
+     .            TABMP_L,MAT_PARAM,numeltg,iworksh,elm_group)
 C-----------------------------------------------
 C            M o d u l e s
 C-----------------------------------------------
@@ -57,11 +57,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER  NUMELC,OFF,
+      INTEGER  OFF,
      .  NUMMAT,NUMGEO,IXC(NIXC,*),
      .  IGEO(NPROPGI,NUMGEO),IPM(NPROPMI,NUMMAT),TABMP_L
       INTEGER, INTENT(IN) :: SIZE_IRUP ! maximum number of rupture criteria
-
+      integer, intent(in) :: numelc !< number of shell elements
+      integer, intent(in) :: numeltg ! number of shell3n elements
 C     REAL OR REAL*8
       my_real
      .    PM(NPROPM,NUMMAT), GEO(NPROPG,NUMGEO),BUFMAT(*)
@@ -73,6 +74,8 @@ C     REAL OR REAL*8
       INTEGER, DIMENSION(2,*), INTENT(IN) :: POIN_PART_SHELL
       TYPE(MID_PID_TYPE), DIMENSION(*), INTENT(INOUT) :: MID_PID_SHELL
       TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT), INTENT(IN) :: MAT_PARAM
+      integer, dimension(3,numelc+numeltg), intent(in) :: iworksh !< ply data for shell & shell3n elements
+      integer, dimension(numelc,2), intent(in) :: elm_group !< group id & number of element in the group for each element 
 C-----------------------------------------------
       INTEGER  NPN, MID, PID, MLN,
      .    ISTRAIN, ITHK, IHBE, IPLA, ISSN, I, J,
@@ -141,7 +144,8 @@ C-----------------------------------------------
         ENDIF
         ! -----------------
         NPN = NINT(GEO(6,PID))
-        NPT = ABS(NPN)
+        NPT = ABS(NPN) ! get the number of integration points
+        if(iworksh(2,i)>0) npt = iworksh(2,i) ! if ply data is available, get the number of integration points from ply data (for composite materials)
         IHBE = NINT(GEO(171,PID))
         ITHK = NINT(GEO(35,PID))
         IPLA = NINT(GEO(39,PID))
@@ -158,6 +162,7 @@ C-----------------------------------------------
           IRUP_TAB(J) = MAT_PARAM(MID)%FAIL(J)%IRUPT
          ENDDO
         ENDIF
+        telt = 0.
         TIMMAT = 0.
         TRUP = 0.
         TMATADD = 0.
@@ -388,7 +393,6 @@ C ow        test elem delete
                   TABMAT(J) = SHTNL(MIN(MLN,MAXLAW),J,INDI) + TMATADD
                 ENDDO
                 ! *******--------*******
-                NPT = ABS(NPN)
                 CALL INTERLAGRAN(TABMAT,TABX,3,NPT,TIMMAT)
 !               ----------------
 !               Failure 
@@ -437,7 +441,7 @@ C           0pt d integration doit etre traite a part
          INDI5 = 0
          IF(IDRIL==1) INDI5=2
 
-         IF(MLN/=0)THEN
+         IF(MLN/=0.and.wd_local==0.)THEN
            IF (IHBE>=11.AND.IHBE<=19) THEN
 C ow            BATOZ
                  TELT = SHTELT(INDI4*5+3+INDI5)+BATOZMULT*(TIMMAT + TRUP) + MULT_SPE*NLOCAL_OPTION(SPE_I_3) + VISC_PRONY
@@ -454,18 +458,21 @@ C ow            Q4
 
         ! --------------------
         IF(RECHERCHE==0) THEN
-         IF((WD_LOCAL==0.).AND.(MLN/=0)) THEN
-           POIDS = TELT * INVTREF
-           WD(I+OFF) = POIDS
-           POIN_PART = IPARTC(I)
-           POIN_MID = POIN_PART_SHELL(1,POIN_PART)
-           POIN_PID = POIN_PART_SHELL(2,POIN_PART)
-           IF(POIN_MID/=0.AND.POIN_PID/=0) MID_PID_SHELL(POIN_MID)%COST1D(POIN_PID) = TELT
-         ELSEIF((WD_LOCAL==0.).AND.(MLN==0)) THEN
-           WD(I+OFF) = 0.0001
-         ENDIF
+          IF((WD_LOCAL==0.).AND.(MLN/=0)) THEN
+            if(elm_group(i,2)>0.and.elm_group(i,2)<80) then
+              telt = telt * (18.248*(elm_group(i,2))**(-0.625))
+            endif                   
+            POIDS = TELT * INVTREF     
+            WD(I+OFF) = POIDS
+            POIN_PART = IPARTC(I)
+            POIN_MID = POIN_PART_SHELL(1,POIN_PART)
+            POIN_PID = POIN_PART_SHELL(2,POIN_PART)
+            IF(POIN_MID/=0.AND.POIN_PID/=0) MID_PID_SHELL(POIN_MID)%COST1D(POIN_PID) = TELT
+          ELSEIF((WD_LOCAL==0.).AND.(MLN==0)) THEN
+            WD(I+OFF) = 0.0001
+          ENDIF
         ELSE
-         TELT_PRO = TELT
+          TELT_PRO = TELT
         ENDIF
         ! --------------------
       ENDDO

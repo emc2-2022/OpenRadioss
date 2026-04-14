@@ -28,9 +28,9 @@
       module mulaw_mod
         implicit none
       contains
-! ======================================================================================================================
+! =================================================================================================
 !                                                   mmain
-! ======================================================================================================================
+! =================================================================================================
 !! \brief main routine for advanced Material Computation for brick/quad/thickshell/sph elements
 !||====================================================================
 !||    mulaw                   ../engine/source/materials/mat_share/mulaw.F90
@@ -103,6 +103,7 @@
 !||    sigeps128s              ../engine/source/materials/mat/mat128/sigeps128s.F90
 !||    sigeps129s              ../engine/source/materials/mat/mat129/sigeps129s.F90
 !||    sigeps130               ../engine/source/materials/mat/mat130/sigeps130.F90
+!||    sigeps131               ../engine/source/materials/mat/mat131/sigeps131.F90
 !||    sigeps133               ../engine/source/materials/mat/mat133/sigeps133.F90
 !||    sigeps134s              ../engine/source/materials/mat/mat134/sigeps134s.F90
 !||    sigeps163               ../engine/source/materials/mat/mat163/sigeps163.F90
@@ -185,6 +186,7 @@
 !||    sigeps128s_mod          ../engine/source/materials/mat/mat128/sigeps128s.F90
 !||    sigeps129s_mod          ../engine/source/materials/mat/mat129/sigeps129s.F90
 !||    sigeps130_mod           ../engine/source/materials/mat/mat130/sigeps130.F90
+!||    sigeps131_mod           ../engine/source/materials/mat/mat131/sigeps131.F90
 !||    sigeps133_mod           ../engine/source/materials/mat/mat133/sigeps133.F90
 !||    sigeps134s_mod          ../engine/source/materials/mat/mat134/sigeps134s.F90
 !||    sigeps163_mod           ../engine/source/materials/mat/mat163/sigeps163.F90
@@ -265,6 +267,7 @@
           use sigeps128s_mod
           use sigeps129s_mod
           use sigeps130_mod
+          use sigeps131_mod
           use sigeps133_mod , only : sigeps133
           use sigeps134s_mod
           use sigeps163_mod
@@ -497,10 +500,12 @@
           integer :: nuvarr
 
           integer :: nv46, numel, inloc
-          integer :: i,npar,nuparam,niparam,nparf,iadbuf,nfunc,numtabl,israte,ipg,nptr,npts,&
-          &ibid,ibidon1,ibidon2,ibidon3,ibidon4 ,n48,nix,ilaw_user,igtyp,&
-          &nvarf,ir,irupt,imat,isvis,nuvarv,iseq,idev,ntabl_fail,&
-          &l_planl,l_epsdnl,l_dmg,l_sigb
+          integer :: i,npar,nuparam,niparam,nparf,nvarftmp,iadbuf,nfunc,numtabl,   &
+          israte,ipg,nptr,npts,&
+          ibid,ibidon1,ibidon2,ibidon3,ibidon4 ,n48,nix,ilaw_user,igtyp,&
+          nvarf,ir,irupt,imat,isvis,nuvarv,iseq,idev,ntabl_fail,&
+          l_planl,l_epsdnl,l_dmg,l_sigb
+          integer, dimension(:) ,pointer :: varftmp
 
           real(kind=WP) :: e1,e2,e3,e4,e5,e6,bid1,bid3,q1,q2,q3,ss1,ss2,ss3,ss4,ss5,&
           &ss6,wxxf,wyyf,wzzf,p2,epsp,dav,asrate,     &
@@ -530,9 +535,8 @@
           real(kind=WP), dimension(nel), target  :: le_max
           real(kind=WP) :: wfextt !< external force work accumulation
 !----
-          real(kind=WP), dimension(:), pointer   :: uparam,uparam0,uparf,uvarf,dfmax,&
-          &tdel,yldfac,dam,el_len,&
-          &el_pla,damini
+          real(kind=WP), dimension(:), pointer, contiguous   :: uparam,uparam0,uparf,uvarf,dfmax,&
+          &tdel,yldfac,dam,el_len,el_pla,damini
           real(kind=WP), dimension(nel), target :: el_pla_dum
           real(kind=WP), dimension(:), allocatable ,target  :: bufzero
           type(l_bufel_)  ,pointer         :: lbuf
@@ -542,7 +546,7 @@
           type(fail_param_) , pointer :: failparam
           logical :: logical_userl_avail
           real(kind=WP) :: user_uelr(mvsiz)
-          integer, dimension(:) ,pointer   :: fld_idx,foff,ifunc,itable,itabl_fail,iparf,iparam
+          integer, dimension(:) ,pointer, contiguous   :: fld_idx,foff,ifunc,itable,itabl_fail,iparf,iparam
           integer                          :: mat_comp,mat_smstr,mat_formu
           integer                          :: dmg_flag,lf_dammx,niparf
           integer :: nvartmp_eos
@@ -553,7 +557,7 @@
           integer :: k1,k2,k3,k4,k5,k6
           real(kind=WP) :: fisokin
           real(kind=WP), dimension(nel), target :: vecnul
-          real(kind=WP), dimension(:), pointer  :: sigbxx,sigbyy,sigbzz,sigbxy,sigbyz,sigbzx
+          real(kind=WP), dimension(:), pointer, contiguous  :: sigbxx,sigbyy,sigbzz,sigbxy,sigbyz,sigbzx
           real(kind=WP), dimension(nel) :: off_old
 !=======================================================================
           gbuf   => elbuf_tab(ng)%gbuf
@@ -946,6 +950,7 @@
             end if !(iselect>0) then
 !
             if (idtmin(1)==3.and.ismstr == 12) then
+#include "vectorize.inc"
               do i=1,nel
                 if (offg(i) <=one) cycle
                 es1(i)=mfxx(i)
@@ -1051,6 +1056,7 @@
 !---------------------------------------------------------
           ! -> isotropic stress softening
           if (dmg_flag == 1) then
+#include "vectorize.inc"
             do i = 1,nel
               so1(i) = so1(i)/max(lbuf%dmgscl(i),em20)
               so2(i) = so2(i)/max(lbuf%dmgscl(i),em20)
@@ -1061,6 +1067,7 @@
             end do
             ! -> orthotropic stress softening
           else if (dmg_flag == 6) then
+#include "vectorize.inc"
             do i = 1,nel
               so1(i) = so1(i)/max(lbuf%dmgscl(i+nel*(1-1)),em20)
               so2(i) = so2(i)/max(lbuf%dmgscl(i+nel*(2-1)),em20)
@@ -1538,14 +1545,14 @@
             &ebuf%var,nvareos,mat_elem%mat_param, nvartmp_eos, ebuf%var)
 !
           else if (mtn == 76) then
-            call sigeps76(nel      ,npar     ,nuvar    ,nfunc    ,ifunc    ,ngl       ,&
-            &npf      ,tf       ,tt       ,dt1      ,uparam0   ,matparam  ,&
-            &rho0     ,dpla     ,et       ,ssp      ,sigy     ,uvar      ,&
-            &de1      ,de2      ,de3      ,de4      ,de5      ,de6       ,&
-            &so1      ,so2      ,so3      ,so4      ,so5      ,so6       ,&
-            &s1       ,s2       ,s3       ,s4       ,s5       ,s6        ,&
-            &off      ,epsd     ,defp     ,inloc    ,l_planl  ,lbuf%planl,&
-            &lbuf%dmg ,nvartmp  ,vartmp   )
+            call sigeps76(nel   ,npar     ,nuvar    ,ngl      ,           &
+             tt       ,dt1      ,uparam0   ,matparam,                     &
+             rho0     ,dpla     ,et       ,ssp      ,sigy     ,uvar      ,&
+             de1      ,de2      ,de3      ,de4      ,de5      ,de6       ,&
+             so1      ,so2      ,so3      ,so4      ,so5      ,so6       ,&
+             s1       ,s2       ,s3       ,s4       ,s5       ,s6        ,&
+             off      ,epsd     ,defp     ,inloc    ,l_planl  ,lbuf%planl,&
+             lbuf%dmg ,nvartmp  ,vartmp   )
 !
           else if (mtn == 78) then
             call sigeps78(nel ,npar,nuvar,nfunc,ifunc,npf ,&
@@ -2048,11 +2055,11 @@
             call mstrain_rate(nel    ,israte ,asrate ,epsd   ,idev   ,&
             &ep1    ,ep2    ,ep3    ,ep4    ,ep5    ,ep6)
             call sigeps125(&
-            &nel      ,nuvar    ,uvar     ,matparam ,rho0              ,&
-            &nfunc    ,ifunc    ,snpc     ,npf      ,stf      ,tf       ,&
+            &nel      ,nuvar    ,uvar     ,nvartmp, vartmp  ,         &
+            &matparam ,rho0              ,&
             &es1      ,es2      ,es3      ,es4      ,es5      ,es6      ,&
             &s1       ,s2       ,s3       ,s4       ,s5       ,s6       ,&
-            &ssp     , epsd,  lbuf%dmg )
+            &ssp     , epsd,  lbuf%dmg ,off )
 !
           else if (mtn == 126) then
             idev = 1
@@ -2111,6 +2118,18 @@
               sv1      ,sv2      ,sv3      ,sv4      ,sv5      ,sv6      ,     &
               rho0     ,rho      ,iresp    ,off      ,dt1      ,deltax   ,     &
               asrate   ,l_dmg    ,lbuf%dmg )
+!
+          else if (mtn == 131) then
+            call sigeps131(                                                    &
+              nel      ,matparam ,rho      ,nvartmp  ,vartmp   ,iresp    ,     &
+              de1      ,de2      ,de3      ,de4      ,de5      ,de6      ,     &
+              ep1      ,ep2      ,ep3      ,ep4      ,ep5      ,ep6      ,     &
+              so1      ,so2      ,so3      ,so4      ,so5      ,so6      ,     &
+              s1       ,s2       ,s3       ,s4       ,s5       ,s6       ,     &
+              ssp      ,off      ,defp     ,dpla     ,lbuf%seq ,et       ,     &
+              sigy     ,dt1      ,epsd     ,el_temp  ,israte   ,asrate   ,     &
+              nuvar    ,uvar     ,l_sigb   ,lbuf%sigb,matparam%ieos,dpdm ,     &
+              jthe     ,fheat    ,voln     )
 !
           else if (mtn == 133) then
             call sigeps133( &
@@ -2179,6 +2198,7 @@
             end if
             !< Case where equivalent stress is computed in the material law
             if (elbuf_tab(ng)%bufly(ilay)%l_seq > 0) then
+#include "vectorize.inc"
               do i = 1,nel
                 dpla(i) = defp(i) - defp0(i)
                 lbuf%wpla(i) = lbuf%wpla(i) +                        &
@@ -2186,6 +2206,7 @@
               end do
               !< Default case using Von Mises stress
             else
+#include "vectorize.inc"
               do i = 1,nel
                 dpla(i) = defp(i) - defp0(i)
                 vm0(i)= sqrt(half*(                                  &
@@ -2273,6 +2294,7 @@
               end if
 !----
               uvarf  => fbuf%floc(ir)%var
+              varftmp=> fbuf%floc(ir)%vartmp
               irupt  =  fbuf%floc(ir)%ilawf
               nvarf  =  fbuf%floc(ir)%nvar
               dfmax  => fbuf%floc(ir)%dammx
@@ -2285,8 +2307,9 @@
               failparam => matparam%fail(ir)
               nparf  =  matparam%fail(ir)%nuparam
               niparf =  matparam%fail(ir)%niparam
-              uparf=> matparam%fail(ir)%uparam(1:nparf)
-              iparf=> matparam%fail(ir)%iparam(1:niparf)
+              nvarftmp= matparam%fail(ir)%nvartmp
+              uparf  => matparam%fail(ir)%uparam(1:nparf)
+              iparf => matparam%fail(ir)%iparam(1:niparf)
               nfunc  =  matparam%fail(ir)%nfunc
               fld_idx=> fbuf%floc(ir)%indx
               ifunc  => matparam%fail(ir)%ifunc(1:nfunc)
@@ -2411,12 +2434,12 @@
                 &mfzx     ,mfzy     ,mfzz     ,lbuf%dmgscl)
               else if (irupt == 11) then
 !---- energy failure
-                call fail_energy_s(&
-                &nel      ,nparf    ,nvarf    ,nfunc    ,ifunc    ,npf      ,&
-                &tf       ,tt       ,dt1      ,uparf    ,ngl      ,epsp1    ,&
-                &uvarf    ,off      ,dfmax    ,tdel     ,lbuf%dmgscl,&
-                &s1       ,s2       ,s3       ,s4       ,s5       ,s6       ,&
-                &de1      ,de2      ,de3      ,de4      ,de5      ,de6      )
+                call fail_energy_s(mat_elem%mat_param(imat)%fail(ir)  , &
+                 nel      ,nvarf    ,nvarftmp ,uvarf    ,varftmp   ,          &
+                 tt       ,dt1      ,ngl      ,epsp1    ,&
+                 off      ,dfmax    ,tdel     ,lbuf%dmgscl,&
+                 s1       ,s2       ,s3       ,s4       ,s5       ,s6       ,&
+                 de1      ,de2      ,de3      ,de4      ,de5      ,de6      )
               else if (irupt == 13) then
 !---- chang - chang
                 call fail_changchang_s(&
@@ -2451,14 +2474,13 @@
                 &off      ,table    ,dfmax    ,tdel     ,nfunc     ,ifunc     )
               else if (irupt == 24) then
 !   --- orthotropic strain failure
-                call fail_orthstrain(&
-                &nel      ,nparf    ,nvarf    ,nfunc    ,ifunc    ,&
-                &npf      ,tf       ,tt       ,dt1      ,uparf    ,ismstr   ,&
-                &ep1      ,ep2      ,ep3      ,ep4      ,ep5      ,ep6      ,&
-                &es1      ,es2      ,es3      ,es4      ,es5      ,es6      ,&
-                &s1       ,s2       ,s3       ,s4       ,s5       ,s6       ,&
-                &uvarf    ,off      ,ipg      ,ngl      ,dfmax    ,tdel     ,&
-                &gbuf%uelr,npg      ,deltax   ,lf_dammx )
+                call fail_orthstrain(failparam,                             &
+                nel      ,nvarf    ,tt       ,dt1      ,ismstr   ,          &
+                ep1      ,ep2      ,ep3      ,ep4      ,ep5      ,ep6      ,&
+                es1      ,es2      ,es3      ,es4      ,es5      ,es6      ,&
+                s1       ,s2       ,s3       ,s4       ,s5       ,s6       ,&
+                uvarf    ,off      ,ipg      ,ngl      ,dfmax    ,tdel     ,&
+                gbuf%uelr,npg      ,deltax   ,lf_dammx ,nvarftmp ,varftmp)
               else if (irupt == 27) then
 ! ---   extended mohr coulomb failure model
                 call fail_emc(&
@@ -2546,13 +2568,13 @@
               else if (irupt == 41) then
 !---- tabulated failure model version 2
                 call fail_tab2_s(&
-                &nel      ,nparf    ,nvarf    ,nfunc    ,ifunc    ,&
-                &npf      ,table    ,tf       ,tt       ,uparf  ,&
-                &ngl      ,el_len   ,dpla     ,epsp1    ,uvarf    ,&
-                &s1       ,s2       ,s3       ,s4       ,s5       ,s6       ,&
-                &el_temp  ,off      ,dfmax    ,tdel     ,lbuf%dmgscl,&
-                &gbuf%uelr,ipg      ,npg      ,lbuf%off ,ntabl_fail,itabl_fail,&
-                &gbuf%noff,voln     )
+                 nel      ,nparf    ,nvarf    ,nfunc    ,ifunc    ,&
+                 npf      ,table    ,tf       ,tt       ,uparf  ,&
+                 ngl      ,el_len   ,dpla     ,epsp1    ,uvarf    ,&
+                 s1       ,s2       ,s3       ,s4       ,s5       ,s6       ,&
+                 el_temp  ,off      ,dfmax    ,tdel     ,lbuf%dmgscl,&
+                 gbuf%uelr,ipg      ,npg      ,lbuf%off ,ntabl_fail,itabl_fail,&
+                 gbuf%noff,voln     ,nvarftmp ,varftmp   )
 !
               else if (irupt == 42) then
 !---- inievo failure model
@@ -2671,17 +2693,16 @@
 !--------------------------------------------------------
 !     Shooting nodes algorithm activation
 !--------------------------------------------------------
-          do i = 1,nel
-            if ((off_old(i) > zero) .and. (off(i) == zero)) then
-              idel7nok = 1
-            end if
-          end do
+          if (any(off_old(1:nel) > zero .and. off(1:nel) == zero)) then
+            idel7nok = 1
+          end if
 !
 !--------------------------------------------------------
 !     damaged stresses
 !---------------------------------------------------------
           ! -> isotropic stress softening
           if (dmg_flag == 1) then
+#include "vectorize.inc"
             do i = 1,nel
               s1(i) = s1(i)*lbuf%dmgscl(i)
               s2(i) = s2(i)*lbuf%dmgscl(i)
@@ -2692,6 +2713,7 @@
             end do
             ! -> orthotropic stress softening
           else if (dmg_flag == 6) then
+#include "vectorize.inc"
             do i = 1,nel
               s1(i) = s1(i)*lbuf%dmgscl(i+nel*(1-1))
               s2(i) = s2(i)*lbuf%dmgscl(i+nel*(2-1))
@@ -2862,6 +2884,7 @@
 !------------------------------------------------------------
           if ((elbuf_tab(ng)%bufly(ilay)%l_pla > 0).and.(mtn /= 126)) then
             if (inloc > 0) then
+#include "vectorize.inc"
               do i=1,nel
                 if (off(i) == one) then
                   varnl(i) = defp(i)

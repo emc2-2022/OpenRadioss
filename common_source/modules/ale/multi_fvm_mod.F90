@@ -28,7 +28,6 @@
 !||    alewdx                           ../engine/source/ale/grid/alewdx.F
 !||    anim_nodal_ssp_elems             ../engine/source/output/anim/generate/anim_nodal_ssp_elems.F90
 !||    build_connectivity               ../engine/source/multifluid/connectivity.F
-!||    c3grhead                         ../starter/source/elements/sh3n/coque3n/c3grhead.F
 !||    c_ixfloc                         ../starter/source/restart/ddsplit/c_ixfloc.F
 !||    c_multi_vel                      ../starter/source/restart/ddsplit/c_multi_vel.F
 !||    c_vois                           ../starter/source/restart/ddsplit/c_vois.F
@@ -122,6 +121,7 @@
 !||    iniphase                         ../starter/source/initial_conditions/inivol/iniphase.F
 !||    init_bcs_nrf                     ../starter/source/boundary_conditions/init_bcs_nrf.F90
 !||    init_bcs_wall                    ../starter/source/boundary_conditions/init_bcs_wall.F90
+!||    init_h3d_engine                  ../engine/source/output/h3d/h3d_build_fortran/init_h3d_engine.F90
 !||    init_inivol                      ../starter/source/initial_conditions/inivol/init_inivol.F90
 !||    init_inivol_2d_polygons          ../starter/source/initial_conditions/inivol/init_inivol_2D_polygons.F90
 !||    initia                           ../starter/source/elements/initia/initia.F

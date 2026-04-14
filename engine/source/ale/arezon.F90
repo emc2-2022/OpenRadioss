@@ -447,7 +447,7 @@
                         k = llt*(add-1)
                         vol => elbuf_tab(ng)%bufly(1)%mat(1,1,1)%var(k+1:k+llt)
                         add0 = m51_n0phas + (itrimat-1)*m51_nvphas
-                        add = add0 + 24 + idx ! temperature
+                        add = add0 + 23 + idx ! temperature
                         k = llt*(add-1)
                         var => elbuf_tab(ng)%bufly(1)%mat(1,1,1)%var(k+1:k+llt)
                       else

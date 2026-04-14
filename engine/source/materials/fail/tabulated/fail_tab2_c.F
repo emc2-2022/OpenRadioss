@@ -37,7 +37,7 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
      1     NEL      ,NUPARAM  ,NUVAR    ,NFUNC    ,IFUNC    ,
      2     NPF      ,TABLE    ,TF       ,TIME     ,UPARAM   , 
      3     NGL      ,ALDT     ,DPLA     ,EPSP     ,UVAR     ,     
-     4     SIGNXX   ,SIGNYY   ,SIGNXY   ,     
+     4     SIGNXX   ,SIGNYY   ,SIGNXY   ,NVARTMP  ,VARTMP   ,     
      5     TEMP     ,FOFF     ,DFMAX    ,TDELE    ,IPT      ,
      6     IPG      ,DMG_FLAG ,DMG_SCALE,NTABLF   ,ITABLF   ,
      7     NIPARAM  ,IPARAM   ,NOFF     ,OFF      ,NPT      ,
@@ -61,6 +61,8 @@ C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
       INTEGER, INTENT(IN) :: 
      .        NEL,NUPARAM,NUVAR,NTABLF,NGL(NEL),IPT,IPG
+      INTEGER, INTENT(IN) :: NVARTMP
+      INTEGER, DIMENSION(NEL,NVARTMP), INTENT(IN) :: VARTMP
       INTEGER, DIMENSION(NTABLF) ,INTENT(IN) :: ITABLF
       INTEGER, INTENT(INOUT) :: 
      .        DMG_FLAG,FOFF(NEL)
@@ -89,11 +91,9 @@ C!-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,INDX(NEL),NINDX,ITAB_EPSF,
-     .        ITAB_INST,ITAB_SIZE,IREG,
-     .        IPOS(NEL,3),NDIM,IPOS2(NEL),
-     .        IAD(NEL),ILEN(NEL),LOG_SCALE1,
-     .        LOG_SCALE2,MIDFAIL
+      INTEGER :: I,J,NINDX,ITAB_EPSF,ITAB_INST,ITAB_SIZE,IREG,NDIM
+      INTEGER :: LOG_SCALE1,LOG_SCALE2,MIDFAIL
+      INTEGER ,DIMENSION(NEL) :: INDX,IAD,ILEN
       my_real 
      .        FCRIT  ,DN,DCRIT,ECRIT,EXP_REF,EXPO,EL_REF,
      .        SR_REF1,FSCALE_EL,SHRF,BIAXF  ,SR_REF2,
@@ -221,10 +221,9 @@ c
       ! Compute the temperature dependency factor
       IF (IFUNC(4) > 0) THEN 
         VAR(1:NEL)   = TEMP(1:NEL)/TEMP_REF
-        IPOS2(1:NEL) = 1
         IAD(1:NEL)   = NPF(IFUNC(4)) / 2 + 1
-        ILEN(1:NEL)  = NPF(IFUNC(4)+1) / 2 - IAD(1:NEL) - IPOS2(1:NEL)
-        CALL VINTER2(TF,IAD,IPOS2,ILEN,NEL,VAR,DFT,TEMPFAC)
+        ILEN(1:NEL)  = NPF(IFUNC(4)+1) / 2 - IAD(1:NEL) - VARTMP(1:NEL,1)
+        CALL VINTER2(TF,IAD,VARTMP(1:NEL,1),ILEN,NEL,VAR,DFT,TEMPFAC)
         TEMPFAC(1:NEL) = FSCALE_TEMP*TEMPFAC(1:NEL)
         TEMPFAC2(1:NEL) = TEMPFAC(1:NEL)
       ELSE
@@ -242,7 +241,6 @@ c
             CASE(1)
               XVEC(1:NEL,1)   = L0(1:NEL)/EL_REF
               XVEC(1:NEL,2:3) = ZERO
-              IPOS(1:NEL,1:3) = 1
             ! Scale factor vs element size vs strain rate
             CASE(2)
               XVEC(1:NEL,1)   = L0(1:NEL)/EL_REF
@@ -254,7 +252,6 @@ c
                 XVEC(1:NEL,2) = EPSP(1:NEL)/SR_REF1
               ENDIF
               XVEC(1:NEL,3)   = ZERO
-              IPOS(1:NEL,1:3) = 1
           END SELECT
         ELSEIF (IREG == 2) THEN 
           SELECT CASE (NDIM)
@@ -262,22 +259,20 @@ c
             CASE(1)
               XVEC(1:NEL,1)   = L0(1:NEL)/EL_REF
               XVEC(1:NEL,2:3) = ZERO
-              IPOS(1:NEL,1:3) = 1
             ! Scale factor vs element size vs triaxiality
             CASE(2)
               XVEC(1:NEL,1)   = L0(1:NEL)/EL_REF
               XVEC(1:NEL,2)   = TRIAX(1:NEL)
               XVEC(1:NEL,3)   = ZERO
-              IPOS(1:NEL,1:3) = 1
               ! Scale factor vs element size vs triaxiality vs Lode parameter
             CASE(3)
               XVEC(1:NEL,1)   = L0(1:NEL)/EL_REF
               XVEC(1:NEL,2)   = TRIAX(1:NEL)
               XVEC(1:NEL,3)   = XI(1:NEL)
-              IPOS(1:NEL,1:3) = 1
-          END SELECT            
+          END SELECT
         ENDIF
-        CALL TABLE_VINTERP(TABLE(ITAB_SIZE),NEL,NEL,IPOS,XVEC,SIZEFAC,DSIZE)
+!
+        CALL TABLE_VINTERP(TABLE(ITAB_SIZE),NEL,NEL,VARTMP(1:NEL,2),XVEC,SIZEFAC,DSIZE)
         SIZEFAC(1:NEL) = SIZEFAC(1:NEL)*FSCALE_EL
         IF (IREG == 1) THEN 
           DO I = 1,NEL
@@ -304,10 +299,9 @@ c
         ELSE
           VAR(1:NEL) = EPSP(1:NEL)/SR_REF2
         ENDIF
-        IPOS2(1:NEL) = 1
         IAD (1:NEL) = NPF(IFUNC(2)) / 2 + 1
-        ILEN(1:NEL) = NPF(IFUNC(2)+1) / 2 - IAD(1:NEL) - IPOS2(1:NEL)
-        CALL VINTER2(TF,IAD,IPOS2,ILEN,NEL,VAR,DFT,RATEFAC)
+        ILEN(1:NEL) = NPF(IFUNC(2)+1) / 2 - IAD(1:NEL) - VARTMP(1:NEL,5)
+        CALL VINTER2(TF,IAD,VARTMP(1:NEL,5),ILEN,NEL,VAR,DFT,RATEFAC)
         RATEFAC(1:NEL) = FSCALE_SR*RATEFAC(1:NEL)
       ELSEIF (CJC > ZERO) THEN 
         DO I=1,NEL
@@ -345,22 +339,20 @@ c
           CASE (1)
             XVEC(1:NEL,1)   = TRIAX(1:NEL)
             XVEC(1:NEL,2:3) = ZERO
-            IPOS(1:NEL,1:3) = 1
           ! Failure plastic strain vs triaxiality vs Lode parameter
           CASE (2)
             XVEC(1:NEL,1)   = TRIAX(1:NEL)
             XVEC(1:NEL,2)   = XI(1:NEL)
             XVEC(1:NEL,3)   = ZERO
-            IPOS(1:NEL,1:3) = 1
           ! Failure plastic strain vs triaxiality vs Lode parameter vs temperature
           CASE (3)
             XVEC(1:NEL,1)   = TRIAX(1:NEL)
             XVEC(1:NEL,2)   = XI(1:NEL)
             XVEC(1:NEL,3)   = TEMP(1:NEL)/TEMP_REF
-            IPOS(1:NEL,1:3) = 1
             TEMPFAC(1:NEL)  = ONE
         END SELECT
-        CALL TABLE_VINTERP(TABLE(ITAB_EPSF),NEL,NEL,IPOS,XVEC,EPSF,DEPSF)
+
+        CALL TABLE_VINTERP(TABLE(ITAB_EPSF),NEL,NEL,VARTMP(1:NEL,6:8),XVEC,EPSF,DEPSF)
         EPSF(1:NEL) = EPSF(1:NEL)*FCRIT
       ELSE 
         EPSF(1:NEL) = FCRIT
@@ -377,22 +369,20 @@ c
           CASE(1)
             XVEC(1:NEL,1)   = TRIAX(1:NEL)
             XVEC(1:NEL,2:3) = ZERO
-            IPOS(1:NEL,1:3) = 1
           ! Instability plastic strain vs triaxiality vs Lode 
           CASE(2)
             XVEC(1:NEL,1)   = TRIAX(1:NEL)
             XVEC(1:NEL,2)   = XI(1:NEL)
             XVEC(1:NEL,3)   = ZERO
-            IPOS(1:NEL,1:3) = 1
           ! Instability plastic strain vs triaxiality vs Lode vs temperature
           CASE(3)
             XVEC(1:NEL,1)   = TRIAX(1:NEL)
             XVEC(1:NEL,2)   = XI(1:NEL)
             XVEC(1:NEL,3)   = TEMP(1:NEL)/TEMP_REF
-            IPOS(1:NEL,1:3) = 1  
             TEMPFAC2(1:NEL) = ONE         
         END SELECT
-        CALL TABLE_VINTERP(TABLE(ITAB_INST),NEL,NEL,IPOS,XVEC,EPSL,DEPSL)
+        
+        CALL TABLE_VINTERP(TABLE(ITAB_INST),NEL,NEL,VARTMP(1:NEL,9:11),XVEC,EPSL,DEPSL)
         EPSL(1:NEL) = EPSL(1:NEL)*ECRIT
       ELSEIF (ECRIT > ZERO) THEN 
         EPSL(1:NEL) = ECRIT

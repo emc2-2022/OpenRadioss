@@ -23,14 +23,18 @@
 ! --------------------------------------------------------------------------------------------------------------
 !
 !||====================================================================
-!||    func_table_copy_mod   ../starter/source/materials/tools/func_table_copy.F90
+!||    func_table_copy_mod       ../starter/source/materials/tools/func_table_copy.F90
 !||--- called by ------------------------------------------------------
-!||    hm_read_mat123        ../starter/source/materials/mat/mat123/hm_read_mat123.F90
-!||    hm_read_mat129        ../starter/source/materials/mat/mat129/hm_read_mat129.F90
-!||    hm_read_mat50         ../starter/source/materials/mat/mat050/hm_read_mat50.F90
-!||    hm_read_mat57         ../starter/source/materials/mat/mat057/hm_read_mat57.F90
-!||    hm_read_mat87         ../starter/source/materials/mat/mat087/hm_read_mat87.F90
-!||    hm_read_mat88         ../starter/source/materials/mat/mat088/hm_read_mat88.F90
+!||    hm_read_fail_energy       ../starter/source/materials/fail/energy/hm_read_fail_energy.F
+!||    hm_read_fail_orthstrain   ../starter/source/materials/fail/orthstrain/hm_read_fail_orthstrain.F
+!||    hm_read_mat123            ../starter/source/materials/mat/mat123/hm_read_mat123.F90
+!||    hm_read_mat125            ../starter/source/materials/mat/mat125/hm_read_mat125.F90
+!||    hm_read_mat129            ../starter/source/materials/mat/mat129/hm_read_mat129.F90
+!||    hm_read_mat132            ../starter/source/materials/mat/mat132/hm_read_mat132.F90
+!||    hm_read_mat50             ../starter/source/materials/mat/mat050/hm_read_mat50.F90
+!||    hm_read_mat57             ../starter/source/materials/mat/mat057/hm_read_mat57.F90
+!||    hm_read_mat87             ../starter/source/materials/mat/mat087/hm_read_mat87.F90
+!||    hm_read_mat88             ../starter/source/materials/mat/mat088/hm_read_mat88.F90
 !||====================================================================
       module func_table_copy_mod
       implicit none
@@ -40,22 +44,26 @@
 !! \detail mat_param table array : mat_param%ntable > 0 should be already allocated
 
 !||====================================================================
-!||    func_table_copy        ../starter/source/materials/tools/func_table_copy.F90
+!||    func_table_copy           ../starter/source/materials/tools/func_table_copy.F90
 !||--- called by ------------------------------------------------------
-!||    hm_read_mat123         ../starter/source/materials/mat/mat123/hm_read_mat123.F90
-!||    hm_read_mat129         ../starter/source/materials/mat/mat129/hm_read_mat129.F90
-!||    hm_read_mat50          ../starter/source/materials/mat/mat050/hm_read_mat50.F90
-!||    hm_read_mat57          ../starter/source/materials/mat/mat057/hm_read_mat57.F90
-!||    hm_read_mat87          ../starter/source/materials/mat/mat087/hm_read_mat87.F90
-!||    hm_read_mat88          ../starter/source/materials/mat/mat088/hm_read_mat88.F90
+!||    hm_read_fail_energy       ../starter/source/materials/fail/energy/hm_read_fail_energy.F
+!||    hm_read_fail_orthstrain   ../starter/source/materials/fail/orthstrain/hm_read_fail_orthstrain.F
+!||    hm_read_mat123            ../starter/source/materials/mat/mat123/hm_read_mat123.F90
+!||    hm_read_mat125            ../starter/source/materials/mat/mat125/hm_read_mat125.F90
+!||    hm_read_mat129            ../starter/source/materials/mat/mat129/hm_read_mat129.F90
+!||    hm_read_mat132            ../starter/source/materials/mat/mat132/hm_read_mat132.F90
+!||    hm_read_mat50             ../starter/source/materials/mat/mat050/hm_read_mat50.F90
+!||    hm_read_mat57             ../starter/source/materials/mat/mat057/hm_read_mat57.F90
+!||    hm_read_mat87             ../starter/source/materials/mat/mat087/hm_read_mat87.F90
+!||    hm_read_mat88             ../starter/source/materials/mat/mat088/hm_read_mat88.F90
 !||--- calls      -----------------------------------------------------
-!||    mattab_usr2sys         ../starter/source/materials/tools/mattab_usr2sys.F
-!||    table_values_2d        ../starter/source/materials/tools/table_values_2d.F
-!||    unify_abscissa_2d      ../starter/source/materials/tools/unify_abscissas_2d.F
+!||    mattab_usr2sys            ../starter/source/materials/tools/mattab_usr2sys.F
+!||    table_values_2d           ../starter/source/materials/tools/table_values_2d.F
+!||    unify_abscissa_2d         ../starter/source/materials/tools/unify_abscissas_2d.F
 !||--- uses       -----------------------------------------------------
 !||====================================================================
         subroutine func_table_copy(mat_table,mat_title,mat_id   ,     &
-          nfunc    ,ifunc    ,x2vect   ,x1scale  ,x2scale  ,fscale   ,               &
+          nfunc    ,ifunc_id ,x2vect   ,x1scale  ,x2scale  ,fscale   ,               &
           ntable   ,table    ,ierr     )
 ! --------------------------------------------------------------------------------------------------------------
 !     M o d u l e s
@@ -67,9 +75,6 @@
 ! --------------------------------------------------------------------------------------------------------------
           implicit none
 !-----------------------------------------------
-!     included files
-! ----------------------------------------------
-! --------------------------------------------------------------------------------------------------------------
 !                                                   Arguments
 ! --------------------------------------------------------------------------------------------------------------
           character(len=nchartitle)       ,intent(in)    :: mat_title  !< material law title
@@ -78,7 +83,7 @@
           integer                         ,intent(in)    :: nfunc      !< number of functions to convert
           real(kind=WP)                         ,intent(in)    :: x1scale    !< scale factor for function abscissa
           real(kind=WP)                         ,intent(in)    :: x2scale    !< scale factor for second abscissa dimension
-          integer            ,dimension(nfunc)  ,intent(in)    :: ifunc      !< liste of functions Ids
+          integer            ,dimension(nfunc)  ,intent(in)    :: ifunc_id   !< liste of functions Ids
           real(kind=WP)      ,dimension(nfunc)  ,intent(in)    :: x2vect     !< second variable values for each function
           real(kind=WP)      ,dimension(nfunc)  ,intent(in)    :: fscale     !< scale factor for values of each function
           type(ttable) ,dimension(ntable) ,intent(in)    :: table      !< input table array
@@ -101,9 +106,9 @@
 !--------------------------------------------------------
 !     check the input function Ids and convert them into internal function numbers
 !--------------------------------------------------------
-          call mattab_usr2sys(mat_title,mat_id,ntable,table,nfunc,ifunc)
+          call mattab_usr2sys(mat_title,mat_id,ntable,table,nfunc,ifunc_id)
           do i = 1,nfunc
-            if (ifunc(i) == 0) then
+            if (ifunc_id(i) == 0) then
               ierr = 1
               mat_table%notable = 0
             end if
@@ -123,7 +128,7 @@
           allocate (mat_table%x(ndim))
 !--------------------------------------------------------
           if (ndim == 1) then                       !  just need to copy original function to mat_table
-            func_n = ifunc(1)
+            func_n = ifunc_id(1)
             npi = size(table(func_n)%x(1)%values)
             allocate (mat_table%x(1)%values(npi) )
             allocate (mat_table%y1d(npi))
@@ -142,7 +147,7 @@
             nptx = 0
             lmax = 0
             do i = 1,nfunc
-              func_n = ifunc(i)
+              func_n = ifunc_id(i)
               len(i) = size(table(func_n)%x(1)%values)
               nptx = nptx + len(i)
               lmax = max(lmax,len(i))
@@ -155,7 +160,7 @@
             yi(:,:) = zero
 !
             do i = 1,nfunc
-              func_n = ifunc(i)
+              func_n = ifunc_id(i)
               npi    = len(i)
               xi(1:npi,i) = x1scale   * table(func_n)%x(1)%values(1:npi)
               yi(1:npi,i) = fscale(i) * table(func_n)%y%values(1:npi)

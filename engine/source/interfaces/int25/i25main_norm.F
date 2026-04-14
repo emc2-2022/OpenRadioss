@@ -21,24 +21,25 @@ Copyright>        As an alternative to this open-source version, Altair also off
 Copyright>        software under a commercial license.  Contact Altair to discuss further if the
 Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 !||====================================================================
-!||    i25main_norm    ../engine/source/interfaces/int25/i25main_norm.F
+!||    i25main_norm       ../engine/source/interfaces/int25/i25main_norm.F
 !||--- called by ------------------------------------------------------
-!||    inttri          ../engine/source/interfaces/intsort/inttri.F
+!||    inttri             ../engine/source/interfaces/intsort/inttri.F
 !||--- calls      -----------------------------------------------------
-!||    i25assnp        ../engine/source/interfaces/int25/i25norm.F
-!||    i25normp        ../engine/source/interfaces/int25/i25norm.F
-!||    i25tagn         ../engine/source/interfaces/int25/i25norm.F
-!||    my_barrier      ../engine/source/system/machine.F
+!||    i25assnp           ../engine/source/interfaces/int25/i25norm.F
+!||    i25normp           ../engine/source/interfaces/int25/i25norm.F
+!||    i25tagn            ../engine/source/interfaces/int25/i25norm.F
+!||    my_barrier         ../engine/source/system/machine.F
 !||--- uses       -----------------------------------------------------
-!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
-!||    mpi_commod      ../engine/share/modules/mpi_comm_mod.F
-!||    sensor_mod      ../common_source/modules/sensor_mod.F90
+!||    intbufdef_mod      ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    mpi_commod         ../engine/share/modules/mpi_comm_mod.F
+!||    nodal_arrays_mod   ../common_source/modules/nodal_arrays.F90
+!||    sensor_mod         ../common_source/modules/sensor_mod.F90
 !||====================================================================
       SUBROUTINE I25MAIN_NORM(
      1                   INTLIST25,IPARI   ,INTBUF_TAB ,JTASK    ,X       ,
      2                   ITAB    ,NSENSOR  ,SENSOR_TAB,IAD_FRNOR    ,FR_NOR   ,
      3                   IAD_FREDG,FR_EDG,IAD_ELEM,FR_ELEM,FSKYN25,
-     4                   ADDCSRECT,PROCNOR)
+     4                   ADDCSRECT,PROCNOR,nodes)
 C=======================================================================
 C-----------------------------------------------
 C   M o d u l e s
@@ -46,6 +47,7 @@ C-----------------------------------------------
       USE MPI_COMMOD
       USE INTBUFDEF_MOD
       USE SENSOR_MOD
+      use nodal_arrays_mod
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -72,12 +74,13 @@ C     REAL
       TYPE(MPI_COMM_NOR_STRUCT) , DIMENSION(NINTER25) :: BUFFERS
       REAL*4 FSKYN25(3,*)
       TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) ,INTENT(IN) :: SENSOR_TAB
+      type(nodal_arrays_), intent(inout) :: nodes !< nodal arrays
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N, ISENS, NI25, NADMSR, IEDGE, NADMSRF6, NADMSRL6,
      .        NRTM, NSN, NSNR, NRTM_SH, NRTM0, FLAGREMN ,NCSHIFT ,ISHIFT,
-     .        SIZE_NODNOR_E2S,I,J,NOD,CC,SOL_EDGE
+     .        SIZE_NODNOR_E2S,I,J,NOD,CC,SOL_EDGE,I_STOK_E2S
       INTEGER :: NEDGE
 C     REAL
       my_real
@@ -182,7 +185,11 @@ C
           IEDGE  = IPARI(58,N)
           NEDGE  = IPARI(68,N) ! Updated in i25normp
           SOL_EDGE =0
-          IF(IEDGE /= 0) SOL_EDGE =IEDGE/10 ! solids
+          I_STOK_E2S = 0
+          IF(IEDGE /= 0)  THEN
+             SOL_EDGE =IEDGE/10 ! solids
+             I_STOK_E2S = INTBUF_TAB(N)%I_STOK_E(2)
+          ENDIF
 
           CALL I25TAGN(NI25    ,N       ,NRTM     ,NSN         ,NSNR      ,
      2               JTASK   ,IAD_FRNOR ,FR_NOR  ,INTBUF_TAB(N)%IRTLM,INTBUF_TAB(N)%MSEGTYP24  ,
@@ -191,11 +198,11 @@ C
      4               INTBUF_TAB(N)%TAGNOD,IAD_ELEM,FR_ELEM ,INTBUF_TAB(N)%ADMSR,INTBUF_TAB(N)%KNOR2MSR, 
      5               INTBUF_TAB(N)%NOR2MSR,FLAGREMN,INTBUF_TAB(N)%KREMNOR,INTBUF_TAB(N)%REMNOR,
      6               IEDGE, NEDGE, INTBUF_TAB(N)%LEDGE,INTBUF_TAB(N)%NRTM_FREE,
-     .                                    INTBUF_TAB(N)%FREE_IRECT_ID,INTBUF_TAB(N)%I_STOK_E(2),
+     .                                    INTBUF_TAB(N)%FREE_IRECT_ID,I_STOK_E2S,
      7               INTBUF_TAB(N)%CANDM_E2S,INTBUF_TAB(N)%CANDS_E2S,INTBUF_TAB(N)%MVOISIN,
      8               INTBUF_TAB(N)%E2S_ACTNOR,NADMSR,INTBUF_TAB(N)%STFM,
      8               INTBUF_TAB(N)%NUMBER_EDGE_TYPE1,INTBUF_TAB(N)%NUMBER_EDGE_TYPE1_0,
-     .               INTBUF_TAB(N)%EDGE_TYPE1,INTBUF_TAB(N)%EDGE_TYPE1_0 )
+     .               INTBUF_TAB(N)%EDGE_TYPE1,INTBUF_TAB(N)%EDGE_TYPE1_0 ,nodes)
 
 
 C

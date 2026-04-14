@@ -44,9 +44,13 @@
 !||    funct_python_update_elements             ../engine/source/tools/curve/funct_python_update_elements.F90
 !||    get_neighbour_surface                    ../engine/source/interfaces/interf/get_neighbour_surface.F90
 !||    get_neighbour_surface_from_remote_proc   ../engine/source/interfaces/interf/get_neighbour_surface_from_remote_proc.F90
+!||    i25main_norm                             ../engine/source/interfaces/int25/i25main_norm.F
+!||    i25tagn                                  ../engine/source/interfaces/int25/i25norm.F
 !||    init_ghost_shells                        ../engine/source/engine/node_spliting/ghost_shells.F90
+!||    init_global_boundary_list                ../engine/source/mpi/init/init_global_boundary_list.F90
 !||    init_nodal_state                         ../engine/source/interfaces/interf/init_nodal_state.F
 !||    intti1                                   ../engine/source/interfaces/interf/intti1.F
+!||    inttri                                   ../engine/source/interfaces/intsort/inttri.F
 !||    lag_fxv                                  ../engine/source/tools/lagmul/lag_fxv.F
 !||    lag_fxvp                                 ../engine/source/tools/lagmul/lag_fxv.F
 !||    lag_mult                                 ../engine/source/tools/lagmul/lag_mult.F
@@ -152,6 +156,9 @@
           INTEGER :: BOUNDARY_SIZE !< size of BOUNDARY
           integer, dimension(:), allocatable :: BOUNDARY
           integer, dimension(:,:), allocatable :: BOUNDARY_ADD
+
+          integer :: global_boundary_nb
+          integer, dimension(:), allocatable :: global_boundary
         end type nodal_arrays_
         ! break towards checkstfn
 !       type animation_buffers
@@ -163,17 +170,23 @@
 !           real(kind=wp), dimension(:), allocatable :: ANIN
 !           real(kind=wp), dimension(:), allocatable :: TANI
 !       end type
+
+        interface assign_ptr
+          module procedure assign_ptr_int_1d
+          module procedure assign_ptr_int_2d
+          module procedure assign_ptr_real_1d
+          module procedure assign_ptr_real_2d
+        end interface assign_ptr
+        public :: assign_ptr
       contains
 ! ======================================================================================================================
 !                                                   procedures
 ! ======================================================================================================================
         !\details Assign the pointer to the coordinates
 !||====================================================================
-!||    assign_ptrx   ../common_source/modules/nodal_arrays.F90
-!||--- called by ------------------------------------------------------
-!||    resol         ../engine/source/engine/resol.F
+!||    assign_ptr_int_1d   ../common_source/modules/nodal_arrays.F90
 !||====================================================================
-        subroutine assign_ptrX(ptrX, X, numnod)
+        subroutine assign_ptr_int_1d(ptr,array,dim1)
 ! ----------------------------------------------------------------------------------------------------------------------
 !                                                   Modules
 ! ----------------------------------------------------------------------------------------------------------------------
@@ -181,14 +194,76 @@
 ! ----------------------------------------------------------------------------------------------------------------------
 !                                                   Arguments
 ! ----------------------------------------------------------------------------------------------------------------------
-          real(kind=wp), pointer, dimension(:,:), contiguous, intent(inout) :: ptrX
-          integer, intent(in) :: numnod
-          real(kind=wp), target , dimension(3,numnod), intent(in) :: X
+          integer, pointer, dimension(:), contiguous, intent(inout) :: ptr
+          integer, intent(in) :: dim1
+          integer, target , dimension(dim1), intent(inout) :: array
 ! ----------------------------------------------------------------------------------------------------------------------
 !                                                   Body
 ! ----------------------------------------------------------------------------------------------------------------------
-          ptrX => X
-        end subroutine assign_ptrX
+          ptr => array
+        end subroutine assign_ptr_int_1d
+
+!||====================================================================
+!||    assign_ptr_int_2d   ../common_source/modules/nodal_arrays.F90
+!||====================================================================
+        subroutine assign_ptr_int_2d(ptr,array,dim1,dim2)
+! ----------------------------------------------------------------------------------------------------------------------
+!                                                   Modules
+! ----------------------------------------------------------------------------------------------------------------------
+          implicit none
+! ----------------------------------------------------------------------------------------------------------------------
+!                                                   Arguments
+! ----------------------------------------------------------------------------------------------------------------------
+          integer, pointer, dimension(:,:), contiguous, intent(inout) :: ptr
+          integer, intent(in) :: dim1
+          integer, intent(in) :: dim2
+          integer, target , dimension(dim1,dim2), intent(inout) :: array
+! ----------------------------------------------------------------------------------------------------------------------
+!                                                   Body
+! ----------------------------------------------------------------------------------------------------------------------
+          ptr => array
+        end subroutine assign_ptr_int_2d
+        
+!||====================================================================
+!||    assign_ptr_real_1d   ../common_source/modules/nodal_arrays.F90
+!||====================================================================
+        subroutine assign_ptr_real_1d(ptr,array,dim1)
+! ----------------------------------------------------------------------------------------------------------------------
+!                                                   Modules
+! ----------------------------------------------------------------------------------------------------------------------
+          implicit none
+! ----------------------------------------------------------------------------------------------------------------------
+!                                                   Arguments
+! ----------------------------------------------------------------------------------------------------------------------
+          real(kind=wp), pointer, dimension(:), contiguous, intent(inout) :: ptr
+          integer, intent(in) :: dim1
+          real(kind=wp), target , dimension(dim1), intent(inout) :: array
+! ----------------------------------------------------------------------------------------------------------------------
+!                                                   Body
+! ----------------------------------------------------------------------------------------------------------------------
+          ptr => array
+        end subroutine assign_ptr_real_1d
+
+!||====================================================================
+!||    assign_ptr_real_2d   ../common_source/modules/nodal_arrays.F90
+!||====================================================================
+      subroutine assign_ptr_real_2d(ptr,array,dim1,dim2)
+! ----------------------------------------------------------------------------------------------------------------------
+!                                                   Modules
+! ----------------------------------------------------------------------------------------------------------------------
+          implicit none
+! ----------------------------------------------------------------------------------------------------------------------
+!                                                   Arguments
+! ----------------------------------------------------------------------------------------------------------------------
+          real(kind=wp), pointer, dimension(:,:), contiguous, intent(inout) :: ptr
+          integer, intent(in) :: dim1
+          integer, intent(in) :: dim2
+          real(kind=wp), target , dimension(dim1,dim2), intent(inout) :: array
+! ----------------------------------------------------------------------------------------------------------------------
+!                                                   Body
+! ----------------------------------------------------------------------------------------------------------------------
+          ptr => array
+        end subroutine assign_ptr_real_2d     
 
 
 !! \brief Allocate nodal arrays

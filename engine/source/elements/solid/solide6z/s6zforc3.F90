@@ -57,7 +57,6 @@
 !||    s6zhour3                ../engine/source/elements/solid/solide6z/s6zhourg3.F90
 !||    s6zhour3_or             ../engine/source/elements/solid/solide6z/s6zhourg3_or.F90
 !||    s6zrcoor3               ../engine/source/elements/solid/solide6z/s6zrcoor3.F90
-!||    s6zrmalla11             ../engine/source/elements/solid/solide6z/s6zrmalla11.F90
 !||    s6zrrota3               ../engine/source/elements/solid/solide6z/s6zrrota3.F90
 !||    s6zrrotadp              ../engine/source/elements/solid/solide6z/s6zrrotadp.F90
 !||    s6zsav12                ../engine/source/elements/solid/solide6z/s6zsav12.F90
@@ -755,11 +754,11 @@
        call srmalla3(gbuf%sig,s1,s2,s3,s4,s5,s6, & 
                   gbuf%off,off,nel)
   
-       call s6zrmalla11(                                 &
-        gbuf%smstr,gbuf%off,  wxx,       wyy,            &
-        wzz,       r11,       r12,       r13,            &
-        r21,       r22,       r23,       r31,            &
-        r32,       r33,       nel,       ismstr)
+!       call s6zrmalla11(                                 &
+!        gbuf%smstr,gbuf%off,  wxx,       wyy,            &
+!        wzz,       r11,       r12,       r13,            &
+!        r21,       r22,       r23,       r31,            &
+!        r32,       r33,       nel,       ismstr)
        
 !-------------------------------------------------------------------------------      
 !  compute new stresses according to constitutive laws

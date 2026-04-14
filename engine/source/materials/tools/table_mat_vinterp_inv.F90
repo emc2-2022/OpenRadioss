@@ -21,11 +21,15 @@
 !Copyright>        software under a commercial license.  Contact Altair to discuss further if the
 !Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 !||====================================================================
-!||    table_mat_vinterp_inv_mod   ../engine/source/materials/tools/table_mat_vinterp_inv.F90
+!||    table_mat_vinterp_inv_mod    ../engine/source/materials/tools/table_mat_vinterp_inv.F90
 !||--- called by ------------------------------------------------------
-!||    sigeps123                   ../engine/source/materials/mat/mat123/sigeps123.F90
-!||    sigeps123c                  ../engine/source/materials/mat/mat123/sigeps123c.F90
-!||    strainrate_dependency       ../engine/source/materials/mat/mat123/strainrate_dependency.F90
+!||    rate_dependency_parameters   ../engine/source/materials/mat/mat132/rate_dependency_parameters.F90
+!||    sigeps123                    ../engine/source/materials/mat/mat123/sigeps123.F90
+!||    sigeps123c                   ../engine/source/materials/mat/mat123/sigeps123c.F90
+!||    sigeps132c                   ../engine/source/materials/mat/mat132/sigeps132c.F90
+!||    strainrate_dependency        ../engine/source/materials/mat/mat123/strainrate_dependency.F90
+!||    strainrate_dependency_125c   ../engine/source/materials/mat/mat125/strainrate_dependency_125c.F90
+!||    strainrate_dependency_125s   ../engine/source/materials/mat/mat125/strainrate_dependency_125s.F90
 !||====================================================================
       module table_mat_vinterp_inv_mod
       contains
@@ -46,7 +50,7 @@
 ! ----------------------------------------------------------------------------------------------------------------------
       use table4d_mod
       use precision_mod, only : WP
-      use constant_mod , only : one, two, zero, three
+      use constant_mod , only : one, two, zero, three,ep10
 ! ----------------------------------------------------------------------------------------------------------------------
 !                                                   Implicit none
 ! ----------------------------------------------------------------------------------------------------------------------
@@ -141,8 +145,12 @@
 #include "vectorize.inc"
         do i=1,nel
           n = ipos(i,k)
-          fac(i,k) = (table%y1d(n+1)  - xx(i,k))                    &
+          if( table%y1d(n+1) == table%y1d(n)) then
+            fac(i,k) =  one
+          else
+            fac(i,k) = (table%y1d(n+1)  - xx(i,k))                    &
                    / (table%y1d(n+1)  - table%y1d(n) )
+          endif
         end do
       end do
 !----------------------------------------------
@@ -157,8 +165,12 @@
           alphai = one - alpha                                                                 
 !
           yy(i)   = alpha*table%x(1)%values(i1)+ alphai*table%x(1)%values(i2)
-          dydx(i) =  (table%x(1)%values(i2) - table%x(1)%values(i1))  &
+          if(table%y1d(i2) == table%y1d(i1)) then
+            dydx(i) = ep10
+          else
+            dydx(i) =  (table%x(1)%values(i2) - table%x(1)%values(i1))  &
                       / (table%y1d(i2) - table%y1d(i1))
+          endif
         end do
 !----
       end select

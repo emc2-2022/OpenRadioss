@@ -557,6 +557,7 @@ C=======================================================================
 !||    hm_read_gauge                ../starter/source/output/gauge/hm_read_gauge.F
 !||    hm_read_gjoint               ../starter/source/constraints/general/gjoint/hm_read_gjoint.F
 !||    hm_read_inter_fsi            ../starter/source/interfaces/reader/hm_read_inter_fsi.F
+!||    hm_read_inter_guided_cable   ../starter/source/tools/seatbelts/hm_read_guided_cable.F90
 !||    hm_read_inter_lagdt_type07   ../starter/source/interfaces/int07/hm_read_inter_lagdt_type07.F
 !||    hm_read_inter_lagmul         ../starter/source/interfaces/reader/hm_read_inter_lagmul.F
 !||    hm_read_inter_struct         ../starter/source/interfaces/reader/hm_read_inter_struct.F
@@ -676,9 +677,12 @@ C-----------------------------------------------
 !||    ecrsub2                       ../starter/source/model/assembling/hm_read_subset.F
 !||    fsdcod                        ../starter/source/system/fsdcod.F
 !||    genani1                       ../starter/source/output/anim/genani1.F
+!||    get_sort_key_shell3n          ../starter/source/elements/sh3n/get_sort_key_shell3n.F90
 !||    hireorbe3                     ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    hm_print_inter_guided_cable   ../starter/source/tools/seatbelts/hm_print_inter_guided_cable.F90
 !||    hm_read_fxb1                  ../starter/source/constraints/fxbody/hm_read_fxb.F
 !||    hm_read_inistate_d00          ../starter/source/elements/initia/hm_read_inistate_d00.F
+!||    hm_read_inter_guided_cable    ../starter/source/tools/seatbelts/hm_read_guided_cable.F90
 !||    hm_read_intsub                ../starter/source/output/subinterface/hm_read_intsub.F
 !||    hm_read_merge                 ../starter/source/constraints/general/merge/hm_read_merge.F
 !||    hm_read_nonlocal              ../starter/source/materials/nonlocal/hm_read_nonlocal.F
@@ -786,6 +790,7 @@ C-----------------------------------------------
 !||    st_qaprint_output_databases   ../starter/source/output/qaprint/st_qaprint_output_databases.F
 !||    st_qaprint_properties         ../starter/source/output/qaprint/st_qaprint_properties.F
 !||    st_qaprint_thgrou             ../starter/source/output/qaprint/st_qaprint_time_histories.F
+!||    stackgroup_drape              ../starter/source/stack/stackgroup_drape.F
 !||    suinit3                       ../starter/source/elements/elbuf_init/suinit3.F
 !||    t3grhead                      ../starter/source/elements/solid_2d/tria/t3grhead.F
 !||    t3grtails                     ../starter/source/elements/solid_2d/tria/t3grtails.F

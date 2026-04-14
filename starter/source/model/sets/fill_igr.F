@@ -127,21 +127,23 @@ C
       ! Process the line stored in KEYA here if needed
               IF(KEYA(1:14) == '/DT/NODA/CST/1' .OR. KEYA(1:8) == '/DYREL/1' .OR. KEYA(1:8) == '/KEREL/1' .OR.
      .           KEYA(1:14) == '/INIV/AXIS/X/2' .OR. KEYA(1:14) == '/INIV/AXIS/Y/2' .OR.
-     .           KEYA(1:14) == '/INIV/AXIS/Z/2')  THEN
+     .           KEYA(1:14) == '/INIV/AXIS/Z/2'.OR. KEYA(1:9) == '/ADYREL/1')  THEN
                 NB_GRNODE = NB_GRNODE + 1
               ELSEIF(KEYA(1:4) == '/H3D' .AND. KEYA(1:7) /= '/H3D/DT'  .AND.
      .               KEYA(1:10) /= '/H3D/TITLE'   .AND. KEYA(1:13) /= '/H3D/COMPRESS'   .AND.
      .               KEYA(1:12) /= '/H3D/LSENSOR' .AND. KEYA(1:7) /= '/H3D/RB'     ) THEN
                 READ(UNIT=tmp_engine, FMT='(A)', IOSTAT=IO_ERR2) CARTE
-                IF(CARTE(1:1) == '/') THEN 
-                  BACKSPACE(tmp_engine)
-                ELSE IF(CARTE(1:1) /= '#') THEN
-                  ALLOCATE(GRPART_TMP(NVAR(CARTE)))
-                  READ(CARTE, FMT=*) GRPART_TMP
-                  DO J=1,NVAR(CARTE)
-                    IF(GRPART_TMP(J) < 0)  NB_GRPART = NB_GRPART + 1
-                  END DO
-                  IF(ALLOCATED(GRPART_TMP))  DEALLOCATE(GRPART_TMP)
+                IF(IO_ERR2 == 0) THEN
+                  IF(CARTE(1:1) == '/') THEN 
+                    BACKSPACE(tmp_engine)
+                  ELSE IF(CARTE(1:1) /= '#' .AND. CARTE(1:1) /= '$') THEN
+                    ALLOCATE(GRPART_TMP(NVAR(CARTE)))
+                    READ(CARTE, FMT=*) GRPART_TMP
+                    DO J=1,NVAR(CARTE)
+                      IF(GRPART_TMP(J) < 0)  NB_GRPART = NB_GRPART + 1
+                    END DO
+                    IF(ALLOCATED(GRPART_TMP))  DEALLOCATE(GRPART_TMP)
+                  ENDIF
                 ENDIF
               ELSE IF(KEYA(1:6) == '/BEGIN') THEN
                 IO_ERR2 = 1
@@ -188,7 +190,7 @@ C
                   READ(UNIT=tmp_engine, FMT='(A)', IOSTAT=IO_ERR2) CARTE
                 END DO
                 READ(CARTE, FMT=*) GRNODE(NB_GRNODE)
-              ELSEIF(KEYA(1:8) == '/DYREL/1') THEN
+              ELSEIF(KEYA(1:8) == '/DYREL/1' .OR. KEYA(1:9) == '/ADYREL/1') THEN
                 NB_GRNODE = NB_GRNODE + 1
 
                 DO WHILE (CARTE(1:1) == '#' .AND. IO_ERR2 == 0)
@@ -236,18 +238,20 @@ C
      .                KEYA(1:10) /= '/H3D/TITLE'   .AND. KEYA(1:13) /= '/H3D/COMPRESS'   .AND.
      .                KEYA(1:12) /= '/H3D/LSENSOR' .AND. KEYA(1:7) /= '/H3D/RB'     ) THEN
                 READ(UNIT=tmp_engine, FMT='(A)', IOSTAT=IO_ERR2) CARTE
-                IF(CARTE(1:1) == '/') THEN 
-                  BACKSPACE(tmp_engine)
-                ELSE IF(CARTE(1:1) /= '#') THEN
-                  ALLOCATE(GRPART_TMP(NVAR(CARTE)))
-                  READ(CARTE, FMT=*) GRPART_TMP
-                  DO J=1,NVAR(CARTE)
-                    IF(GRPART_TMP(J) < 0)  THEN 
-                      NB_GRPART = NB_GRPART + 1
-                      GRPART(NB_GRPART) = GRPART_TMP(J)
-                    ENDIF
-                  END DO
-                  IF(ALLOCATED(GRPART_TMP))  DEALLOCATE(GRPART_TMP)
+                IF(IO_ERR2 == 0) THEN
+                  IF(CARTE(1:1) == '/') THEN 
+                    BACKSPACE(tmp_engine)
+                  ELSE IF(CARTE(1:1) /= '#' .AND. CARTE(1:1) /= '$') THEN
+                    ALLOCATE(GRPART_TMP(NVAR(CARTE)))
+                    READ(CARTE, FMT=*) GRPART_TMP
+                    DO J=1,NVAR(CARTE)
+                      IF(GRPART_TMP(J) < 0)  THEN 
+                        NB_GRPART = NB_GRPART + 1
+                        GRPART(NB_GRPART) = GRPART_TMP(J)
+                      ENDIF
+                    END DO
+                    IF(ALLOCATED(GRPART_TMP))  DEALLOCATE(GRPART_TMP)
+                  ENDIF
                 ENDIF
               ENDIF
             END IF

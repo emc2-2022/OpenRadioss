@@ -38,6 +38,7 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    hm_read_ebcs_valvin          ../starter/source/boundary_conditions/ebcs/hm_read_ebcs_valvin.F
 !||    hm_read_ebcs_valvout         ../starter/source/boundary_conditions/ebcs/hm_read_ebcs_valvout.F
 !||    hm_read_ebcs_vel             ../starter/source/boundary_conditions/ebcs/hm_read_ebcs_vel.F
+!||    hm_read_elasto_plastic       ../starter/source/materials/mat/mat131/hm_read_elasto_plastic.F90
 !||    hm_read_eos_compaction       ../starter/source/materials/eos/hm_read_eos_compaction.F90
 !||    hm_read_eos_compaction2      ../starter/source/materials/eos/hm_read_eos_compaction2.F90
 !||    hm_read_eos_compaction_tab   ../starter/source/materials/eos/hm_read_eos_compaction_tab.F90
@@ -147,6 +148,7 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    hm_read_mat129               ../starter/source/materials/mat/mat129/hm_read_mat129.F90
 !||    hm_read_mat13                ../starter/source/materials/mat/mat013/hm_read_mat13.F
 !||    hm_read_mat130               ../starter/source/materials/mat/mat130/hm_read_mat130.F90
+!||    hm_read_mat132               ../starter/source/materials/mat/mat132/hm_read_mat132.F90
 !||    hm_read_mat133               ../starter/source/materials/mat/mat133/hm_read_mat133.F90
 !||    hm_read_mat134               ../starter/source/materials/mat/mat134/hm_read_mat134.F90
 !||    hm_read_mat14                ../starter/source/materials/mat/mat014/hm_read_mat14.F

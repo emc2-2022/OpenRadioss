@@ -56,7 +56,8 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
      I                  ILEV   ,MBINFLG, EDGE_ID, NEDGE_REM ,FRICC   ,
      J                  IFQ    ,CAND_FX, CAND_FY, CAND_FZ   ,IFPEN   ,
      K                  TAGNCONT ,KLOADPINTER,LOADPINTER ,LOADP_HYD_INTER,
-     L                  TYPSUB   ,STARTT,NINLOADP  ,DGAPLOADINT,S_LOADPINTER)
+     L                  TYPSUB   ,STARTT,NINLOADP  ,DGAPLOADINT,S_LOADPINTER,
+     M                  PENE_OLD_E2S,STIF_OLD_E2S,SIZ_E2S)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -123,6 +124,8 @@ C-----------------------------------------------
      .   FRICC(*),CAND_FX(4,*),CAND_FY(4,*),CAND_FZ(4,*)
       my_real  , INTENT(IN) :: DGAPLOADINT(S_LOADPINTER)
       TYPE(H3D_DATABASE) :: H3D_DATA
+      INTEGER , INTENT(IN) ::SIZ_E2S
+      my_real , INTENT(INOUT) :: PENE_OLD_E2S(4,SIZ_E2S/4),STIF_OLD_E2S(4,SIZ_E2S/4) 
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -138,7 +141,7 @@ C-----------------------------------------------
      .   FY1(4*MVSIZ), FY2(4*MVSIZ), FY3(4*MVSIZ), FY4(4*MVSIZ),
      .   FZ1(4*MVSIZ), FZ2(4*MVSIZ), FZ3(4*MVSIZ), FZ4(4*MVSIZ),
      .   FXT(4*MVSIZ), FYT(4*MVSIZ), FZT(4*MVSIZ),
-     .   VIS2(4*MVSIZ),PENE(4*MVSIZ),DIST(4*MVSIZ),
+     .   VIS2(4*MVSIZ),PENE(4*MVSIZ),DIST(4*MVSIZ),DPENE(4*MVSIZ),
      . VMAX,S2,
      . DT1INV, FAC, FF,
      . FX, FY, FZ, MAS2,DTI,
@@ -148,20 +151,23 @@ C-----------------------------------------------
      . DGAPLOAD,
      .   FSAVSUB1(24,NISUB), IMPX, IMPY, IMPZ,FTN ,FN , FT,BETA
       my_real
-     .   PREC
+     .   PREC, EPP
       my_real
      .   ST1(4*MVSIZ),ST2(4*MVSIZ),ST3(4*MVSIZ),ST4(4*MVSIZ),STIF0(4*MVSIZ),
      .   KT(4*MVSIZ),C(4*MVSIZ),CF(4*MVSIZ),
      .   K1(4*MVSIZ),K2(4*MVSIZ),K3(4*MVSIZ),K4(4*MVSIZ),
      .   C1(4*MVSIZ),C2(4*MVSIZ),C3(4*MVSIZ),C4(4*MVSIZ),
      . CX,CY,CFI,AUX
+       my_real RP1, RP2
 C
 C-----------------------------------------------
 
       IF (IRESP == 1) THEN
         PREC = FIVEEM4
+        EPP = FIVEEM5
       ELSE
         PREC = EM10
+        EPP = EM10
       ENDIF
       IF(DT1>ZERO)THEN
         DT1INV = ONE/DT1
@@ -213,6 +219,10 @@ C          Reduce PENE
      .                           ((ONE-FIVEEM2)*CAND_P(INDX2(I),INDX1(I))+FIVEEM2*PENE(I))  )
 
           PENE(I)=MAX(ZERO,PENE(I)-CAND_P(INDX2(I),INDX1(I)))
+          IF( PENE(I)==ZERO ) THEN
+            PENE_OLD_E2S(INDX2(I),INDX1(I)) = ZERO
+            STIF_OLD_E2S(INDX2(I),INDX1(I)) = STIF(I)
+          ENDIF
           IF( PENE(I)==ZERO )  STIF(I) = ZERO
         ENDDO
       ELSE
@@ -225,6 +235,10 @@ C            CAND_P < 0 <=> Initial penetration computed into the Starter => Do 
      .      CAND_P(INDX2(I),INDX1(I)) = MIN(CAND_P(INDX2(I),INDX1(I)),
      .                            ((ONE-FIVEEM2)*CAND_P(INDX2(I),INDX1(I))+FIVEEM2*PENE(I))  )
             CAND_P(INDX2(I),INDX1(I)) = -CAND_P(INDX2(I),INDX1(I)) ! back to negative value
+            IF( PENE(I)==ZERO ) THEN
+              PENE_OLD_E2S(INDX2(I),INDX1(I)) = ZERO
+              STIF_OLD_E2S(INDX2(I),INDX1(I)) = STIF(I)
+            ENDIF
             IF( PENE(I)==ZERO )  STIF(I) = ZERO
           ELSE
 C
@@ -234,6 +248,10 @@ C            New impact computed into the Engine => Reduce PENE
      .                           ((ONE-FIVEEM2)*CAND_P(INDX2(I),INDX1(I))+FIVEEM2*PENE(I))  )
 C subtraction of the initial pene from the pene and the gap
             PENE(I)=MAX(ZERO,PENE(I)-CAND_P(INDX2(I),INDX1(I)))
+            IF( PENE(I)==ZERO ) THEN
+              PENE_OLD_E2S(INDX2(I),INDX1(I)) = ZERO
+              STIF_OLD_E2S(INDX2(I),INDX1(I)) = STIF(I)
+            ENDIF
             IF( PENE(I)==ZERO )  STIF(I) = ZERO
           END IF
         ENDDO
@@ -250,11 +268,35 @@ C subtraction of the initial pene from the pene and the gap
         VN(I) = NX(I)*VX(I) + NY(I)*VY(I) + NZ(I)*VZ(I)
       ENDDO
 C-------------------------------------------
-
+C     stiffness reduction to avoid positive
+C     force jump and energy generation
+C-------------------------------------------
+      DO I=1,JLT
+C
+        IF(PENE(I) /= ZERO) THEN
+C
+          DPENE(I) = MAX(ZERO,-VN(I)*DT1)
+          IF(TT /= ZERO.AND.PENE_OLD_E2S(INDX2(I),INDX1(I))/=ZERO)THEN 
+           IF(PENE(I)>PENE_OLD_E2S(INDX2(I),INDX1(I)) +DPENE(I)+EPP)THEN
+              RP1 = PENE_OLD_E2S(INDX2(I),INDX1(I))/PENE(I)
+              RP2 = DPENE(I)/PENE(I)
+              STIF(I) = STIF_OLD_E2S(INDX2(I),INDX1(I))*RP1+ STIF(I)*RP2
+            ELSEIF(PENE_OLD_E2S(INDX2(I),INDX1(I))/=ZERO.or.STIF_OLD_E2S(INDX2(I),INDX1(I))/=ZERO) THEN
+              STIF(I) = STIF_OLD_E2S(INDX2(I),INDX1(I))
+            ENDIF
+            PENE_OLD_E2S(INDX2(I),INDX1(I)) = PENE(I)
+            STIF_OLD_E2S(INDX2(I),INDX1(I)) = STIF(I)
+          ELSE
+            PENE_OLD_E2S(INDX2(I),INDX1(I)) = PENE(I)
+            STIF_OLD_E2S(INDX2(I),INDX1(I)) = STIF(I)
+          ENDIF
+        ENDIF
+      ENDDO
+C-------------------------------------------
       DO I=1,JLT
         STIF(I)= HALF*STIF(I)
         FNI(I) = -STIF(I) * PENE(I)
-        ECONVT = ECONVT+FNI(I)*VN(I)*DT1
+        ECONTT = ECONTT+HALF*STIF(I)*PENE(I)**2
       ENDDO
 C---------------------------------
 C     DAMPING + FRIC

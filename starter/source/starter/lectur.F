@@ -105,6 +105,7 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    fxbgrav                             ../starter/source/constraints/fxbody/fxbgrav.F
 !||    fxbtagn                             ../starter/source/constraints/fxbody/fxbtagn.F
 !||    genani1                             ../starter/source/output/anim/genani1.F
+!||    get_element_group                   ../starter/source/elements/get_element_group.F90
 !||    get_size_inter24                    ../starter/source/spmd/get_size_tag.F
 !||    get_size_numnod_local               ../starter/source/spmd/get_size_tag.F
 !||    globmat                             ../starter/source/materials/globmat.F
@@ -148,6 +149,7 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    hm_preread_skw                      ../starter/source/tools/skew/hm_preread_skw.F90
 !||    hm_preread_sphio                    ../starter/source/loads/sph/hm_preread_sphio.F
 !||    hm_preread_xelem                    ../starter/source/elements/reader/hm_preread_xelem.F
+!||    hm_print_inter_guided_cable         ../starter/source/tools/seatbelts/hm_print_inter_guided_cable.F90
 !||    hm_read_activ                       ../starter/source/tools/activ/hm_read_activ.F
 !||    hm_read_admas                       ../starter/source/tools/admas/hm_read_admas.F
 !||    hm_read_ale_link                    ../starter/source/constraints/ale/hm_read_ale_link_vel.F
@@ -178,7 +180,6 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    hm_read_gjoint                      ../starter/source/constraints/general/gjoint/hm_read_gjoint.F
 !||    hm_read_grav                        ../starter/source/loads/general/grav/hm_read_grav.F
 !||    hm_read_grpart                      ../starter/source/groups/hm_read_grpart.F
-!||    hm_read_guided_cable                ../starter/source/tools/seatbelts/hm_read_guided_cable.F90
 !||    hm_read_impacc                      ../starter/source/constraints/general/impvel/hm_read_impacc.F
 !||    hm_read_impflux                     ../starter/source/constraints/thermic/hm_read_impflux.F
 !||    hm_read_imptemp                     ../starter/source/constraints/thermic/hm_read_imptemp.F
@@ -190,6 +191,7 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    hm_read_initemp                     ../starter/source/initial_conditions/thermic/hm_read_initemp.F
 !||    hm_read_inivel                      ../starter/source/initial_conditions/general/inivel/hm_read_inivel.F
 !||    hm_read_inivol                      ../starter/source/initial_conditions/inivol/hm_read_inivol.F90
+!||    hm_read_inter_guided_cable          ../starter/source/tools/seatbelts/hm_read_guided_cable.F90
 !||    hm_read_interfaces                  ../starter/source/interfaces/reader/hm_read_interfaces.F
 !||    hm_read_intsub                      ../starter/source/output/subinterface/hm_read_intsub.F
 !||    hm_read_lines                       ../starter/source/groups/hm_read_lines.F
@@ -336,6 +338,7 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    monvol_deallocate                   ../starter/share/modules1/monvol_struct_mod.F
 !||    multi_connectivity                  ../starter/source/multifluid/multi_connectivity.F
 !||    multi_unplug_neighbors              ../starter/source/multifluid/multi_unplug_neighbors.F
+!||    my_real_tot_int_transfer            ../starter/source/system/my_real_to_int_transfer.F90
 !||    nbfunct                             ../starter/source/tools/curve/nbfunc.F
 !||    nlocal                              ../starter/source/spmd/node/ddtools.F
 !||    nodm11                              ../starter/source/materials/mat/mat011/nodm11.F
@@ -484,19 +487,22 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    drape_mod                           ../starter/share/modules1/drape_mod.F
 !||    dsgraph_mod                         ../starter/share/modules1/dsgraph_mod.F
 !||    elbuftag_mod                        ../starter/share/modules1/elbuftag_mod.F
+!||    elm_group_mod                       ../starter/source/modules/elm_group_mod.F90
 !||    fractal_elem_renum_mod              ../starter/source/materials/fail/fractal/fractal_elem_spmd_renum.F90
 !||    front_mod                           ../starter/share/modules1/front_mod.F
 !||    func2d_mod                          ../starter/share/modules1/func2d_mod.F
 !||    fvbag_mod                           ../starter/share/modules1/fvbag_mod.F
+!||    get_element_group_mod               ../starter/source/elements/get_element_group.F90
 !||    group_mod                           ../starter/share/modules1/group_mod.F
 !||    hierarchy_rbody_mod                 ../starter/source/constraints/general/rbody/hierarchy_rbody.F90
 !||    hm_option_read_mod                  ../starter/share/modules1/hm_option_read_mod.F
 !||    hm_preread_inivel_mod               ../starter/source/initial_conditions/general/inivel/hm_preread_inivel.F90
 !||    hm_preread_skw_mod                  ../starter/source/tools/skew/hm_preread_skw.F90
+!||    hm_print_inter_guided_cable_mod     ../starter/source/tools/seatbelts/hm_print_inter_guided_cable.F90
 !||    hm_read_bcs_nrf_mod                 ../starter/source/boundary_conditions/hm_read_bcs_nrf.F90
 !||    hm_read_bcs_wall_mod                ../starter/source/boundary_conditions/hm_read_bcs_wall.F90
-!||    hm_read_guided_cable_mod            ../starter/source/tools/seatbelts/hm_read_guided_cable.F90
 !||    hm_read_inivol_mod                  ../starter/source/initial_conditions/inivol/hm_read_inivol.F90
+!||    hm_read_inter_guided_cable_mod      ../starter/source/tools/seatbelts/hm_read_guided_cable.F90
 !||    hm_read_preload_axial_mod           ../starter/source/loads/general/preload/hm_read_preload_axial.F90
 !||    iniebcs_propellant_                 ../starter/source/boundary_conditions/ebcs/iniebcs_propellant.F90
 !||    inigrav                             ../starter/share/modules1/inigrav_mod.F
@@ -516,6 +522,7 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    message_mod                         ../starter/share/message_module/message_mod.F
 !||    mid_pid_mod                         ../starter/share/modules1/mid_pid_mod.F
 !||    monvol_struct_mod                   ../starter/share/modules1/monvol_struct_mod.F
+!||    my_real_tot_int_transfer_mod        ../starter/source/system/my_real_to_int_transfer.F90
 !||    nod2el_mod                          ../starter/share/modules1/nod2el_mod.F
 !||    option_mod                          ../starter/share/modules1/options_mod.F
 !||    python_duplicate_nodes_mod          ../starter/source/spmd/domain_decomposition/python_duplicate_nodes.F90
@@ -656,7 +663,11 @@ C-----------------------------------------------
       use hm_preread_skw_mod, ONLY : hm_preread_skw
       use hierarchy_rbody_mod
       use sfem_exclude_mod
-      use hm_read_guided_cable_mod, ONLY : hm_read_guided_cable
+      use hm_read_inter_guided_cable_mod, ONLY : hm_read_inter_guided_cable
+      use hm_print_inter_guided_cable_mod, ONLY : hm_print_inter_guided_cable
+      use get_element_group_mod , only : get_element_group
+      use elm_group_mod , only : elm_group_
+      use my_real_tot_int_transfer_mod , only : my_real_tot_int_transfer
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -822,6 +833,7 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:),ALLOCATABLE ::
      *        ISOLNOD,ISOLOFF,ISHEOFF,ITRUOFF,IPOUOFF,
      *        IRESOFF,ITRIOFF,IGRNRBY,IQUAOFF
+      integer, dimension(:), allocatable :: isolnod0,ishell3nod0
 C
       INTEGER(KIND=8) :: KVOISPH8,NUMSPH8,SIXSP8,LIMIT8
       INTEGER :: INTEGER_LIMIT32
@@ -878,7 +890,7 @@ C
      .       , DIMENSION(:,:), ALLOCATABLE :: QP_RPERTURB,RBY_INIAXIS
 C
       my_real
-     .  EANIT2(10),COST_R2R,TOTMAS
+     .  EANIT2(10),COST_R2R,TOTMAS,TOTMAS1
       TARGET :: EANIT2
 C OpenMP specific
        INTEGER ITASK, NP
@@ -1240,6 +1252,11 @@ C SPH
 C RWALL PENALTY   
       INTEGER :: SLN_PEN
       my_real, DIMENSION(:), ALLOCATABLE :: RWSTIF_PEN
+
+      integer, parameter :: nb_key = 8 
+      integer :: iwarnhb,n_entity
+      integer :: sh4tree_dim1,sh4tree_dim2,sh3tree_dim1,sh3tree_dim2
+      type(elm_group_) :: elm_group
 c=======================================================================
       IREAC = 0 
       PYTHON%NB_FUNCTS = 0
@@ -1666,7 +1683,8 @@ c
      +          NGJOINT+NUNIT0+NFUNCT+NADMESH+
      +          NSPHIO+NSPCOND+NRBYKIN+NEBCS+
      +          NINICRACK+NODMAS+NBGAUGE+NCLUSTER+NINTERFRIC+
-     +          NRBMERGE+NUMBCSN+NSLIPRING+NRETRACTOR
+     +          NRBMERGE+NUMBCSN+NSLIPRING+NRETRACTOR+
+     +          NGUIDED_CABLE
       SNOM_OPT = SNOM_OPT1*LNOPT1+1
       SINOM_OPT= 33
       SNOM_SECT= ncharline*NSECT
@@ -1808,7 +1826,7 @@ C --- Initialisations
       IF(SNOM_OPT > 0) NOM_OPT = 0
       IF(SINOM_OPT > 0) INOM_OPT = 0
       IF(NUMELR > 0) IXR_KJ = 0
-      IF(NUMELC+NUMELTG > 0) IWORKSH = 0
+      IF(NUMELC+NUMELTG > 0) IWORKSH(:,:) = 0
       IF(NUMELR > 0) R_SKEW = 0
       IF(NUMELP > 0) IBEAM_VECTOR(1:NUMELP) = ZERO
       IF(NUMELP > 0) RBEAM_VECTOR(1:3,1:NUMELP) = ZERO
@@ -1992,7 +2010,7 @@ C     .. TO BE MAINTAINED (cf doc/inom_opt.txt) ..
       INOM_OPT(2) = INOM_OPT(1) + NACCELM
       INOM_OPT(3) = INOM_OPT(2) + NVOLU + NMONVOL
       INOM_OPT(4) = INOM_OPT(3) + NINTER
-      INOM_OPT(5) = INOM_OPT(4) + NINTSUB
+      INOM_OPT(5) = INOM_OPT(4) + NINTSUB + NGUIDED_CABLE
       INOM_OPT(6) = INOM_OPT(5) + NRWALL
       INOM_OPT(7) = INOM_OPT(6) + 0 !obsolete option removed
       INOM_OPT(8) = INOM_OPT(7) + NJOINT
@@ -2126,7 +2144,7 @@ c in the skew, we put all the skews of the model
         XFRAME => SKEW
       END IF
 c      ALLOCATE(XFRAME(SXFRAME) ,STAT=stat)
-      ALLOCATE(EANI(SEANI) ,STAT=stat)
+      ALLOCATE(EANI(SEANI) ,STAT=stat)      
       IF(STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,MSGTYPE=MSGERROR,C1='EANI')
       IF(SEANI > 0) EANI = 0
       IF(NUMELTG > 0) THEN
@@ -2134,6 +2152,8 @@ c      ALLOCATE(XFRAME(SXFRAME) ,STAT=stat)
       ELSE
         EANIT => EANIT2
       ENDIF
+      allocate(isolnod0(numels))
+      allocate(ishell3nod0(numeltg))
       PM   = 0
       SKEW = 0
       GEO  = 0
@@ -2171,7 +2191,8 @@ c---------------------------------------------------------------
      .     RWORK       ,SRWORK   ,IPM      ,PM         ,UNITAB    ,
      .     MULTI_FVM   ,FAILWAVE ,NLOC_DMG ,LSUBMODEL  ,TABLE     ,
      .     LTITR       ,USERL_AVAIL,MAT_NUMBER,
-     .     NPC         ,TF       ,SNPC     ,NPTS       ,SBUFMAT   )
+     .     NPC         ,TF       ,SNPC     ,NPTS       ,SBUFMAT   ,
+     .     IRESP       )
 c---------------------------------------------------------------
       ALLOCATE(BUFMAT(SBUFMAT)    ,STAT=stat)
       IF(STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,
@@ -2777,6 +2798,19 @@ C--------------------------------------------
       LEVELMAX=0
       LSH4TRIM=0
       LSH3TRIM=0
+
+      if(nadmesh==0) then
+        sh4tree_dim1 = 0
+        sh4tree_dim2 = 0
+        sh3tree_dim1 = 0
+        sh3tree_dim2 = 0
+      else
+        sh4tree_dim1 = ksh4tree
+        sh4tree_dim2 = numelc
+        sh3tree_dim1 = ksh3tree
+        sh3tree_dim2 = numeltg
+      endif
+
       IF(NADMESH/=0)THEN
 
         ALLOCATE(SH4TREE(KSH4TREE,NUMELC),STAT=stat)
@@ -2833,6 +2867,8 @@ C--------------------------------------------
         ALLOCATE(SH4TRIM(0))
         ALLOCATE(SH3TRIM(0))
       END IF
+
+      
 
       IF(ISTATCND/=0)THEN
         ALLOCATE(MSCND(NUMNOD),INCND(NUMNOD),STAT=stat)
@@ -4260,7 +4296,7 @@ C--------------------------------------------
 
       CALL TRACE_OUT1()
 C--------------------------------------------
-C     READING SLIPRINGS AND RETRACTORS
+C     READING SLIPRINGS AND RETRACTORS AND /INTER/GUIDED_CABLE
 C--------------------------------------------
       ERR_MSG='SEATBELTS'
       ERR_CATEGORY='SEATBELTS'
@@ -4284,15 +4320,14 @@ C
       IF(NRETRACTOR > 0) CALL HM_READ_RETRACTOR(
      1                                           LSUBMODEL,ITABM1,IXR,ITAB,UNITAB,
      2                                           X,NPC1,NOM_OPT(LNOPT1*INOM_OPT(32)+1),ALEA,IPM)
-C   
-      IF(NGUIDED_CABLE > 0) WRITE(ISTDO,'(A)')' .. GUIDED CABLE'  
-      IF(NGUIDED_CABLE > 0) CALL HM_READ_GUIDED_CABLE(
-     1                                        LSUBMODEL,IGRNOD,NGRNOD,IGRPART,NGRPART,
-     2                                        NPART,UNITAB,NUMELR,IPARTR,IXR,
-     3                                        NIXR,NUMELP,IPARTP,IXP,NIXP,
-     4                                        NUMELT,IPARTT,IXT,NIXT,NSPMD,
-     5                                        KNOD2EL1D,NOD2EL1D,S_NOD2EL1D,NUMNOD,X,
-     6                                        NUMELS,NUMELQ,NUMELC)
+C     
+      IF (NGUIDED_CABLE > 0) CALL HM_READ_INTER_GUIDED_CABLE(LSUBMODEL,IGRNOD,NGRNOD,IGRPART,NGRPART,
+     .                                                       NPART,UNITAB,NUMELR,IPARTR,IXR,
+     .                                                       NIXR,NUMELP,IPARTP,IXP,NIXP,
+     .                                                       NUMELT,IPARTT,IXT,NIXT,NSPMD,
+     .                                                       KNOD2EL1D,NOD2EL1D,S_NOD2EL1D,NUMNOD,X,
+     .                                                       NUMELS,NUMELQ,NUMELC,NINTSUB,LTITR,
+     .                                                       LNOPT1,NOM_OPT(LNOPT1*INOM_OPT(4)+1),ITAB)
 C      
       CALL TRACE_OUT1()
 C--------------------------------------------
@@ -4484,7 +4519,7 @@ C--------------------------------------------
       !new Reader
       CALL READ_DETONATORS(ITABM1   ,ITAB      ,IGRNOD  ,
      .                     PM       ,IPM       ,X       ,UNITAB ,
-     .                     LSUBMODEL,DETONATORS)
+     .                     LSUBMODEL,DETONATORS,XFRAME  ,IFRAME)
       CALL TRACE_OUT1()
 C--------------------------------------------
 C     A.L.E.
@@ -4506,7 +4541,7 @@ C--------------------------------------------
         ENDIF
         CALL HM_READ_ALE_LINK(ICODE, ISKEW, ITAB, ITABM1, D,
      .       IGRNOD, IBCSLAG, LAG_NCF, LAG_NKF, LAG_NHF,
-     .       IKINE1LAG, LINALE, LSUBMODEL, UNITAB)
+     .       IKINE1LAG, LINALE, LSUBMODEL, UNITAB,NSUBDOM)
       ELSE
         ALLOCATE(LINALE(0))
       ENDIF
@@ -4890,7 +4925,8 @@ C /BCS/CYCLIC ini&check
         ALLOCATE(ITAGCYC(0))
       END IF
 C--------------------------------------------
-      SFSAV = NTHVKI * (NINTER+NRWALL+NRBODY+NSECT+NJOINT+NRBAG+NVOLU+NMONVOL+NFXBODY+NINTSUB)
+      SFSAV = NTHVKI * (NINTER+NRWALL+NRBODY+NSECT+NJOINT+NRBAG+NVOLU+NMONVOL+NFXBODY
+     .                 +NINTSUB+NGUIDED_CABLE)
       ALLOCATE(FSAV(SFSAV)  ,STAT=stat)
       FSAV = ZERO
       CALL TRACE_OUT1()
@@ -5891,6 +5927,24 @@ C
       ERR_MSG='DOMAIN DECOMPOSITION'
       ERR_CATEGORY='DOMAIN DECOMPOSITION'
       CALL TRACE_IN1(ERR_MSG,LEN_TRIM(ERR_MSG))
+
+      iwarnhb = 0 
+      call my_real_tot_int_transfer(numels,eani,isolnod0)
+      call my_real_tot_int_transfer(numeltg,eanit,ishell3nod0)
+
+      call get_element_group(numels,numelc,numeltg,nb_key, 
+     .                       nummat,numgeo,npart,npropgi, 
+     .                       npropmi,npropm,npropg,lipart1, 
+     .                       isms,idtgrs,npreload,icrack3d, 
+     .                       sh4tree_dim1,sh4tree_dim2,sh3tree_dim1,sh3tree_dim2, 
+     .                       ltitr,iwarnhb,trimat,nadmesh,iddlevel, 
+     .                       iparts,ipartc,ipartg,ipart,
+     .                       isoloff,isheoff,itrioff,isolnod0,ishell3nod0,
+     .                       iflag_bpreload,damp_range_part,tagprt_sms, 
+     .                       iworksh,ixs,ixc,ixtg, 
+     .                       igeo,ipm,sh4tree,sh3tree, 
+     .                       pm,geo,stack,mat_elem%mat_param,elm_group)
+      
       IF(IDDLEVEL==1) THEN
          NGROUP = 0
          LBUFEL = 0
@@ -5962,7 +6016,6 @@ C Average allowance normally sufficient if average group size> NVSIZ/2
       IF(.NOT. ALLOCATED(NPBY)) ALLOCATE(NPBY(0))
       IF(.NOT. ALLOCATED(LPBY)) ALLOCATE(LPBY(0))
       IF(.NOT. ALLOCATED( RBY)) ALLOCATE( RBY(0))
-
           CALL DOMETIS(
      1     IXS       ,IXQ      ,IXC      ,IXT     ,IXP      ,
      2     IXR       ,IXTG     ,CEP     ,GEO      ,
@@ -5978,11 +6031,11 @@ C Average allowance normally sufficient if average group size> NVSIZ/2
      3     NSNT, NMNT_2,TABMP_L,IQUAOFF,
      4     IGRSURF  , FVMAIN,
      5     ITAB      ,IPART    ,IPARTC   ,IPARTG   ,IPARTS,
-     .     IPARTT, IPARTP  ,IPARTR   ,IPARTX   ,
+     .     IPARTT, IPARTP  ,IPARTR   ,IPARTX   , IPARTQ,
      6     POIN_PART_SHELL,POIN_PART_TRI,POIN_PART_SOL,
      7     MID_PID_SHELL,MID_PID_TRI,MID_PID_SOL,T_MONVOL,
-     8     EBCS_TAG_CELL_SPMD,NPBY,LPBY,MAT_ELEM%MAT_PARAM)
-
+     8     EBCS_TAG_CELL_SPMD,NPBY,LPBY,MAT_ELEM%MAT_PARAM,
+     9     iworksh,elm_group)
       DEALLOCATE(IWORK)
 C---------------------------
 C     Domdec SPH
@@ -6080,7 +6133,7 @@ C---------------------------------
 C
 C
         CALL SGRHEAD(
-     1       IXS     ,PM     ,GEO    ,INUM   ,BID13   ,
+     1       IXS     ,PM     ,GEO    ,INUM   ,
      2       ITRI1   ,EADD   ,INDEX1 ,ITRI2  ,IPARTS  ,
      3       ND      ,IGRSURF,IGRBRIC,EANI   ,
      4       CEP(OFF),ITRI3  ,IXS10  ,IXS20  ,IXS16   ,
@@ -6212,7 +6265,7 @@ C---------------------------------
        XNUM = ZERO
 C
        CALL CGRHEAD(
-     1   IXC     ,PM      ,GEO     ,INUM    ,BID13   ,
+     1   IXC     ,PM      ,GEO     ,INUM    ,
      2   ITR1    ,EADD    ,INDEX1  ,ITRI1   ,XNUM    ,
      3   IPARTC  ,ND      ,THKE    ,IGRSURF ,IGRSH4N ,
      4   CEP(OFF),XEP     ,IGEO    ,IPM     ,
@@ -6450,14 +6503,14 @@ C---------------------------------
        ENDIF
        IF(N2D==0)THEN
          CALL C3GRHEAD(
-     1     IXTG    ,PM      ,GEO      ,INUM    ,BID13   ,
+     1     IXTG    ,PM      ,GEO      ,INUM    ,
      2     ITR1    ,EADD    ,INDEX1   ,ITRI1   ,XNUM   ,
      3     IPARTG  ,ND      ,THKEC    ,IGRSURF ,IGRSH3N ,
      4     CEP(OFF),XEP      ,IXTG1   ,EANIT   ,
      5     IGEO    ,IPM     ,IPART    ,SH3TREE ,NOD2ELTG,
      6     ITRIOFF ,SH3TRIM ,TAGPRT_SMS,
      7     IWORKSH , STACK  ,DRAPE  ,RNOISE(1,MIN(SRNOISE2,NUMELC+1)),
-     8     MULTI_FVM , SH3ANG,DRAPEG,PTSH3N,MAT_ELEM%MAT_PARAM,
+     8     SH3ANG,DRAPEG,PTSH3N,MAT_ELEM%MAT_PARAM,
      9     DAMP_RANGE_PART)
        ELSE
          CALL T3GRHEAD(
@@ -7497,7 +7550,9 @@ C Also initialized in Engine (RDRESA)
      .                  MSGTYPE=MSGWARNING,
      .                  ANMODE=ANINFO_BLIND_1)
       ENDIF
-
+C--------------------------------------------------------------   
+      IF(NINTER + NGUIDED_CABLE> 0) WRITE(ISTDO,'(A)')TITRE(38)   
+C      
       IF(NINTER > 0)THEN
        IF(IDDLEVEL == 0) THEN
          ALLOCATE(XFILTR(NINTER)       ,STAT=stat)
@@ -7519,8 +7574,7 @@ C Also initialized in Engine (RDRESA)
 C
        IF(IDDLEVEL == 0) CALL STARTIME(10,1)
        IF(IDDLEVEL == 1) CALL STARTIME(11,1)
-
-       WRITE(ISTDO,'(A)')TITRE(38)
+C 
        IF(NINTSUB/=0)THEN
           CALL HM_READ_INTSUB(IGRNOD ,IGRSURF,NOM_OPT(LNOPT1*INOM_OPT(3)+1),IGRSLIN,LSUBMODEL)
        END IF
@@ -7763,7 +7817,8 @@ C
      F               SEGQUADFR ,TAGPRT_FRIC,INTBUF_FRIC_TAB              ,IPARTT           ,
      G               IPARTP    ,IPARTX     ,IPARTR                       ,NSN_MULTI_CONNEC ,T2_NB_CONNEC,
      H               SICODE    ,ICODE      ,ISKEW                        ,MULTI_FVM        ,S_NOD2ELS   ,
-     I               SITAB     ,SITABM1    ,FLAG_ELEM_INTER25            ,LIST_NIN25       ,IRESP       )
+     I               SITAB     ,SITABM1    ,FLAG_ELEM_INTER25            ,LIST_NIN25       ,IRESP       ,
+     J               NIXX      ,S_NOD2EL1D )
       IF(IDDLEVEL == 0) CALL STOPTIME(12,1)
       IF(IDDLEVEL == 1) CALL STOPTIME(13,1)
 
@@ -7815,7 +7870,13 @@ C
         !--------------------------------------------!
 C
       ENDIF
-
+C--------------------------------------------------------------
+C     Printout for /INTER/GUIDED_CABLE
+C--------------------------------------------------------------
+      IF ((NGUIDED_CABLE > 0).AND.(IDDLEVEL==0)) THEN
+        CALL HM_PRINT_INTER_GUIDED_CABLE(NINTER,NINTSUB,NGRNOD,NGRPART,IGRNOD,IGRPART,
+     .                                   NPARI,IPARI,LTITR,LNOPT1,NOM_OPT(LNOPT1*INOM_OPT(4)+1))
+      ENDIF
 
 C--------------------------------------------
 C     Reading rigid walls
@@ -8837,7 +8898,8 @@ C
      &            NPRELOAD_A , PRELOAD_A      , FAIL_FRACTAL     ,FAIL_BROKMANN       ,DEFAULTS  ,
      &            NDAMP_FREQ_RANGE,DAMPR      , IBEAM_VECTOR     , RBEAM_VECTOR       ,D         ,
      &            LSIGI      ,LSIGSP          , SRNOISE2         ,NPRW               ,LPRW       ,
-     &            RWSTIF_PEN ,SLN_PEN         ,ROOTLEN           ,ROOTNAM            ,NGUIDED_CABLE)
+     &            RWSTIF_PEN ,SLN_PEN         ,ROOTLEN           ,ROOTNAM          ,NGUIDED_CABLE,
+     &            TOTMAS1   )
 
 
       IF(NINTER>0.AND.NUMELIG3D>0) THEN
@@ -10335,7 +10397,7 @@ C     multidomains -> deallocation of arrays
 C--------------------------------------------
       IF(NSUBDOM>0) THEN
         DEALLOCATE(TAG_PART,TAGMON,TAGRBY,TAGINT,TAGCYL,TAGLNK)
-        DEALLOCATE(TAGRB3,TAGRB2,TAGJOIN,TAGMPC,TAG_MAT)
+        DEALLOCATE(TAGRB3,TAGRB2,TAGJOIN,TAGMPC,TAG_MAT,TAG_ALELINK)
       ENDIF
 C--------------------------------------------
 C     STOCKAGE DYNAMIQUE (CONNEXIONS RIGIDES a MADYMO).
@@ -10424,7 +10486,7 @@ C--------------------------------------------
       ERR_MSG='ADDED MASS ESTIMATION'
       ERR_CATEGORY='ADDED MASS ESTIMATION'
       CALL TRACE_IN1(ERR_MSG,LEN_TRIM(ERR_MSG))
-      IF(N2D==0) CALL ADD_MASS_STAT(MS_B,IN_B,STIFFN,STIFFN(NUMNOD+1),ITAB,TOTMAS)
+      CALL ADD_MASS_STAT(MS_B,IN_B,STIFFN,STIFFN(NUMNOD+1),ITAB,TOTMAS,TOTMAS1)
 C---------------------------------
 C     MULTIDOMAINS SPEEDUP ESTIMATION
 C---------------------------------
@@ -10928,7 +10990,7 @@ C
 C         Dimensioning (computes NUMNOR == Nb of normals or vertices wrt ALL Interfaces TYPE25)
 C         and Initialization of IRT>LM(3:4,1:NSN)
           CALL PREPARE_INT25(INTBUF_TAB, IPARI, INTERCEP, NRTMT_25)
-          CALL PREPARE_SPLIT_I25E2E(NSPMD,INTBUF_TAB,IPARI,INTERCEP)
+          CALL PREPARE_SPLIT_I25E2E(NSPMD,INTBUF_TAB,IPARI,INTERCEP,CEP,SCEP)
 
 C
           ALLOCATE(ADDCSRECT(NUMNOR+1),CSRECT(4*NRTMT_25),STAT=stat)
@@ -11358,7 +11420,7 @@ C
 C
           IF (NGUIDED_CABLE > 0) THEN
             DO I=1,NGUIDED_CABLE
-               DEALLOCATE(GUIDE(I)%NODES)
+               IF (NSPMD > 1) DEALLOCATE(GUIDE(I)%NODES)
                DEALLOCATE(GUIDE(I)%CONT)      
             ENDDO
             DEALLOCATE(GUIDE)
@@ -11501,6 +11563,8 @@ C
          CLOSE(IFXM)
          CLOSE(IFXS) 
       ENDIF
+      if(allocated(isolnod0)) deallocate(isolnod0)
+      if(allocated(ishell3nod0)) deallocate(ishell3nod0)
 
       IF(ALLOCATED( DGAPINT ))  DEALLOCATE(DGAPINT)
 

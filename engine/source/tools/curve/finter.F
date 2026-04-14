@@ -39,10 +39,6 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    fail_biquad_ib               ../engine/source/materials/fail/biquad/fail_biquad_ib.F
 !||    fail_biquad_s                ../engine/source/materials/fail/biquad/fail_biquad_s.F
 !||    fail_connect                 ../engine/source/materials/fail/connect/fail_connect.F
-!||    fail_energy_b                ../engine/source/materials/fail/energy/fail_energy_b.F
-!||    fail_energy_c                ../engine/source/materials/fail/energy/fail_energy_c.F
-!||    fail_energy_ib               ../engine/source/materials/fail/energy/fail_energy_ib.F
-!||    fail_energy_s                ../engine/source/materials/fail/energy/fail_energy_s.F
 !||    fail_fabric_c                ../engine/source/materials/fail/fabric/fail_fabric_c.F
 !||    fail_fld_c                   ../engine/source/materials/fail/fld/fail_fld_c.F
 !||    fail_fld_tsh                 ../engine/source/materials/fail/fld/fail_fld_tsh.F
@@ -54,8 +50,6 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    fail_nxt_c                   ../engine/source/materials/fail/nxt/fail_nxt_c.F
 !||    fail_orthbiquad_c            ../engine/source/materials/fail/orthbiquad/fail_orthbiquad_c.F
 !||    fail_orthbiquad_s            ../engine/source/materials/fail/orthbiquad/fail_orthbiquad_s.F
-!||    fail_orthstrain              ../engine/source/materials/fail/orthstrain/fail_orthstrain_s.F
-!||    fail_orthstrain_c            ../engine/source/materials/fail/orthstrain/fail_orthstrain_c.F
 !||    fail_sahraei_s               ../engine/source/materials/fail/sahraei/fail_sahraei_s.F
 !||    fail_snconnect               ../engine/source/materials/fail/snconnect/fail_snconnect.F
 !||    fail_syazwan_c               ../engine/source/materials/fail/syazwan/fail_syazwan_c.F

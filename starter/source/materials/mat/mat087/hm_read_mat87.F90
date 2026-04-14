@@ -100,7 +100,7 @@
 !                                                   local variables
 ! ----------------------------------------------------------------------------------------------------------------------
           integer :: i,iflagsr,iflag,flag_fit,ilaw,nrate,offset,         &
-            ierr2,ifunc(maxfunc),itable(3),ikin,info
+            ierr2,ifunc(maxfunc),itable(3),ikin,info,ifunc_id(maxfunc)
           real(kind=WP) :: e,nu,g,bulk,fcut,al1,al2,al3,al4,al5,al6,al7,al8,           &
             fisokin,invp,invc,unspt,unsct,aswift,epso,qvoce,beta,           &
             ko,alpha,nexp,unsp,unsc,rho0,rhor,rate(maxfunc),yfac(maxfunc),       &
@@ -255,6 +255,8 @@
                 end if
               end do
             end if
+            !< Save user id for output
+            ifunc_id(1:maxfunc) = ifunc(1:maxfunc)
             !< - Swift-Voce
           else if (iflag == 1) then
             !< Yield criterion exponent
@@ -474,11 +476,7 @@
           allocate (matparam%table (matparam%ntable ))
 !
           !< Number of user variables
-          if (iflag == 2) then
-            nuvar = 1 !< Martensite volume fraction for Hansel
-          else
-            nuvar = 0
-          end if
+          nuvar = 1
 !
           !< Material integer parameters
           matparam%iparam(1)  = iflag
@@ -640,7 +638,7 @@
             end if
             if (iflag == 0) then
               write(iout,1007) nrate
-              if (nrate>0) write(iout,1008)(ifunc(i),yfac(i),rate(i),i=1,nrate)
+              if (nrate>0) write(iout,1008)(ifunc_id(i),yfac(i),rate(i),i=1,nrate)
             else if (iflag == 1) then
               write(iout,1009) invp,invc,qvoce,beta,ko,alpha,aswift,nexp,epso
             else if (iflag == 2) then
@@ -718,8 +716,8 @@
 1009      format(/                                                                 &
             5X,"SWIFT-VOCE YIELD STRESS PARAMETERS:                    ",/,         &
             5X,"-----------------------------------                    ",/,         &
-            5X,"COWPER SEYMONDS EXPONENT P . . . . . . . . . . . . . .=",1PG20.13/  &
-            5X,"COWPER SEYMONDS COEFFICIENT C. . . . . . . . . . . . .=",1PG20.13/  &
+            5X,"COWPER SYMONDS EXPONENT P. . . . . . . . . . . . . . .=",1PG20.13/  &
+            5X,"COWPER SYMONDS COEFFICIENT C . . . . . . . . . . . . .=",1PG20.13/  &
             5X,"YIELD VOCE PARAMETER Q . . . . . . . . . . . . . . . .=",1PG20.13/  &
             5X,"YIELD VOCE PARAMETER B . . . . . . . . . . . . . . . .=",1PG20.13/  &
             5X,"YIELD VOCE PARAMETER K0. . . . . . . . . . . . . . . .=",1PG20.13/  &

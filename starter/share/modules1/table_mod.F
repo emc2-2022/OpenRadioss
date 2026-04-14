@@ -37,9 +37,12 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    func_maxy                    ../starter/source/tools/curve/func_maxy.F
 !||    func_slope                   ../starter/source/tools/curve/func_slope.F
 !||    get_u_numtable               ../starter/source/user_interface/utable.F
+!||    hm_read_elasto_plastic       ../starter/source/materials/mat/mat131/hm_read_elasto_plastic.F90
 !||    hm_read_eos                  ../starter/source/materials/eos/hm_read_eos.F
 !||    hm_read_eos_compaction_tab   ../starter/source/materials/eos/hm_read_eos_compaction_tab.F90
 !||    hm_read_fail                 ../starter/source/materials/fail/hm_read_fail.F
+!||    hm_read_fail_energy          ../starter/source/materials/fail/energy/hm_read_fail_energy.F
+!||    hm_read_fail_orthstrain      ../starter/source/materials/fail/orthstrain/hm_read_fail_orthstrain.F
 !||    hm_read_fail_tab1            ../starter/source/materials/fail/tabulated/hm_read_fail_tab1.F
 !||    hm_read_funct                ../starter/source/tools/curve/hm_read_funct.F
 !||    hm_read_funct_python         ../starter/source/tools/curve/hm_read_funct_python.F90
@@ -48,6 +51,7 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    hm_read_mat123               ../starter/source/materials/mat/mat123/hm_read_mat123.F90
 !||    hm_read_mat128               ../starter/source/materials/mat/mat128/hm_read_mat128.F90
 !||    hm_read_mat129               ../starter/source/materials/mat/mat129/hm_read_mat129.F90
+!||    hm_read_mat132               ../starter/source/materials/mat/mat132/hm_read_mat132.F90
 !||    hm_read_mat133               ../starter/source/materials/mat/mat133/hm_read_mat133.F90
 !||    hm_read_mat163               ../starter/source/materials/mat/mat163/hm_read_mat163.F90
 !||    hm_read_mat190               ../starter/source/materials/mat/mat190/hm_read_mat190.F

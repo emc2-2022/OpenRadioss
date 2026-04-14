@@ -67,7 +67,6 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
 !||    mrotensns                   ../engine/source/materials/mat_share/mrotens.F
 !||    nolib_usermat99             ../engine/source/user_interface/nolib_usermat99.F
 !||    nsvisul                     ../engine/source/materials/mat_share/nsvisul.F
-!||    sreploc3                    ../engine/source/elements/solid/solide/sreploc3.F
 !||    startime                    ../engine/source/system/timer_mod.F90
 !||    stoptime                    ../engine/source/system/timer_mod.F90
 !||    viscmain                    ../engine/source/materials/visc/viscmain.F
@@ -227,7 +226,8 @@ C-----------------------------------------------
       INTEGER NV46, NUMEL, INLOC, JSMS
       INTEGER I,NPAR,IADBUF,NFUNC,NUMTABL,NTABL_FAIL,ISRATE,SIZNUL,MX,IPG,NPTR,NPTS,
      .  IBID,IBIDON1,IBIDON2,IBIDON3,IBIDON4 ,N48,NIX,ILAW_USER,IGTYP,
-     .  NVARF,NVARVIS,IR,IRUPT,IMAT,ISVIS,IVISC,NUVARV,ISEQ,IADRUPBUF,IDEV,VISCTYPE
+     .  NVARF,NVARTMP,NVARVIS,IR,IRUPT,IMAT,ISVIS,IVISC,NUVARV,ISEQ,IADRUPBUF,IDEV,VISCTYPE
+      INTEGER, DIMENSION(:), POINTER  :: VARTMP
       my_real 
      .E1,E2,E3,E4,E5,E6,BID1,BID3,Q1,Q2,Q3,SS1,SS2,SS3,SS4,SS5,
      .SS6,WXXF,WYYF,WZZF,P2,EPSP,DAV,ASRATE,C1(MVSIZ),
@@ -1000,14 +1000,6 @@ c
         IF(MDS_AVAIL == 1 )THEN
           ALLOCATE(ISMSTR10_FP(15,NEL))
 
-          CALL SREPLOC3(
-     1         RX,      RY,      RZ,      SX,
-     2         SY,      SZ,      TX,      TY,
-     3         TZ,      R11,     R21,     R31,
-     4         R12,     R22,     R32,     R13,
-     5         R23,     R33,     LLT)
-
-
           IF (ISMSTR == 10) THEN
              DO I=LFT,LLT
                FPSXX(I) = ONE+MFXX(I)
@@ -1166,6 +1158,7 @@ C------------------------------------------------------------
           ENDIF
 c----             
           UVARF   => FBUF%FLOC(IR)%VAR     
+          VARTMP  => FBUF%FLOC(IR)%VARTMP     
           IRUPT    = FBUF%FLOC(IR)%ILAWF   
           NVARF    = FBUF%FLOC(IR)%NVAR    
           DFMAX   => FBUF%FLOC(IR)%DAMMX  
@@ -1179,6 +1172,7 @@ c
           FAILPARAM => MAT_ELEM%MAT_PARAM(MX)%FAIL(IR)
           NPAR    =  MAT_ELEM%MAT_PARAM(MX)%FAIL(IR)%NUPARAM 
           NIPAR   =  MAT_ELEM%MAT_PARAM(MX)%FAIL(IR)%NIPARAM
+          NVARTMP =  MAT_ELEM%MAT_PARAM(MX)%FAIL(IR)%NVARTMP
           UPARAMF => MAT_ELEM%MAT_PARAM(MX)%FAIL(IR)%UPARAM(1:NPAR) 
           IPARAMF => MAT_ELEM%MAT_PARAM(MX)%FAIL(IR)%IPARAM(1:NIPAR) 
           NFUNC   =  MAT_ELEM%MAT_PARAM(MX)%FAIL(IR)%NFUNC         
@@ -1333,10 +1327,10 @@ C---- strain tension
      8             MFZX   ,MFZY   ,MFZZ   ,LBUF%DMGSCL)
           ELSEIF (IRUPT == 11)THEN                                        
 C---- energy failure  
-            CALL FAIL_ENERGY_S(
-     1        NEL      ,NPAR     ,NVARF    ,NFUNC    ,IFUNC    ,NPF      ,
-     2        TF       ,TT       ,DT1      ,UPARAMF  ,NGL      ,EPSP1    ,
-     3        UVARF    ,OFF      ,DFMAX    ,TDEL     ,LBUF%DMGSCL,            
+            CALL FAIL_ENERGY_S(FAILPARAM   ,
+     1        NEL      ,NVARF    ,NVARTMP  ,UVARF    ,VARTMP   ,
+     2        TT       ,DT1      ,NGL      ,EPSP1    ,
+     3        OFF      ,DFMAX    ,TDEL     ,LBUF%DMGSCL,            
      4        S1       ,S2       ,S3       ,S4       ,S5       ,S6       ,
      5        DE1      ,DE2      ,DE3      ,DE4      ,DE5      ,DE6      )
           ELSEIF (IRUPT == 13) THEN
@@ -1373,14 +1367,13 @@ C---- tabulated failure model
      5         OFF      ,TABLE    ,DFMAX    ,TDEL  ,NFUNC    ,IFUNC )                                      
           ELSEIF (IRUPT == 24) THEN                                      
 c   --- Orthotropic strain failure
-              CALL FAIL_ORTHSTRAIN(
-     1        LLT      ,NPAR     ,NVARF    ,NFUNC    ,IFUNC    ,
-     2        NPF      ,TF       ,TT       ,DT1      ,UPARAMF  ,ISMSTR  ,
+              CALL FAIL_ORTHSTRAIN(FAILPARAM,
+     1        LLT      ,NVARF    ,TT       ,DT1      ,ISMSTR   ,
      3        EP1      ,EP2      ,EP3      ,EP4      ,EP5      ,EP6     ,
      4        ES1      ,ES2      ,ES3      ,ES4      ,ES5      ,ES6     ,
      5        S1       ,S2       ,S3       ,S4       ,S5       ,S6      ,
      6        UVARF    ,OFF      ,IPG      ,NGL      ,DFMAX    ,TDEL    ,
-     7        GBUF%UELR,NPG      ,DELTAX   ,LF_DAMMX )
+     7        GBUF%UELR,NPG      ,DELTAX   ,LF_DAMMX ,NVARTMP  ,VARTMP  )
           ELSEIF (IRUPT == 27) THEN                                      
 c ---   extended mohr coulomb failure model                                             
               CALL FAIL_EMC(
@@ -1476,7 +1469,7 @@ C---- Tabulated failure model version 2
      5          S1       ,S2       ,S3       ,S4       ,S5       ,S6       ,               
      6          EL_TEMP  ,OFF      ,DFMAX    ,TDEL     ,LBUF%DMGSCL,
      7          GBUF%UELR,IPG      ,NPG      ,LBUF%OFF ,NTABL_FAIL,ITABL_FAIL,
-     8          GBUF%NOFF,VOLN     )
+     8          GBUF%NOFF,VOLN     ,NVARTMP  ,VARTMP   )
 c
           ELSEIF (IRUPT == 42) THEN                                      
 C---- Inievo failure model

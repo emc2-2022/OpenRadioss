@@ -328,7 +328,7 @@
       eos_struct%uparam(2) = c_solid
       eos_struct%uparam(3) = RHOMAX_PLASTIC
       eos_struct%uparam(4) = gamma_tmd !user may want to have a non zero value even if 0 is recommended
-                                      !used when rho>rhomax_plastic to avoid any useless interpolation of gamma function
+                                      !used when rho>rhomax_plastic to avoid any unnecessary interpolation of gamma function
 
       !integer parameters
       eos_struct%iparam(1) = iform
@@ -350,7 +350,7 @@
           ! tell to rezoning how many user variables (uvar) must be rezoned.
           ! Example :  nuvar = 5          ! material law has 5 user variables
           !            %num_nuvar_mat = 2 ! uvar(I,1) and uvar(i,1) will be rezoned.
-          ale_rezon_param%num_nuvar_eos = 6
+          ale_rezon_param%num_nuvar_eos = 0
 
           write(iout,1000)
           if(is_encrypted)then
